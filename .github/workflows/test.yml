@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-          echo "111111111111" > tmp
+          echo "test" > tmp
           git add tmp
       - uses: ./.github/actions/run-git-secrets
         id: run-git-secrets
