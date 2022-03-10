@@ -13,6 +13,7 @@ jobs:
           echo "111111111111" > tmp
           git add tmp
       - uses: ./.github/actions/run-git-secrets
+        continue-on-error: true
       - run: exit 1
         if: ${{ success() }}
       - run: exit 0
