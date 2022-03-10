@@ -1,0 +1,5 @@
+name: 'Git Secrets'
+description: 'Runs git secrets'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'

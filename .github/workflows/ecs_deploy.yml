@@ -1,0 +1,83 @@
+name: TDR Tag and pre deploy
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      service:
+        required: true
+        type: string
+      image-name:
+        required: true
+        type: string
+      to-deploy:
+        required: true
+        type: string
+    secrets:
+      MANAGEMENT_ACCOUNT:
+        required: true
+      WORKFLOW_PAT:
+        required: true
+      SLACK_WEBHOOK:
+        required: true
+
+permissions:
+  id-token: write
+  contents: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Configure AWS credentials for ECR
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.MANAGEMENT_ACCOUNT }}:role/TDRGithubActionsRoleMgmt
+          aws-region: eu-west-2
+          role-session-name: ECRLogin
+      - id: role-name
+        run: print(f"::set-output name=role-name::TDRGitHubECSUpdateRole{'${{ inputs.enironment }}'.title()")
+      - name: Login to ECR
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com
+      - name: Tag image
+        run: |
+          docker pull ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ inputs.to-deploy }}
+          docker tag ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ inputs.to-deploy }} ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ inputs.environment }}
+          docker push ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ inputs.environment }}
+      - name: Configure AWS credentials for ECS
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.ACCOUNT_NUMBER }}:role/${{ steps.role-name.outputs.role-name }}
+          aws-region: eu-west-2
+          role-session-name: ECRLogin
+      - name: Deploy to ECS
+        run: aws ecs update-service --service ${{ inputs.service }}_service_${{ inputs.environment }} --cluster ${{ inputs.service }}_${{ inputs.environment }} --force-new-deployment > /dev/null
+      - name: Send success message
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
+        with:
+          message: ":white_check_mark: Service ${{ inputs.image-name }} updated to version ${{ inputs.to-deploy }} in ${{ inputs.environment }}"
+          slack-url: ${{ secrets.SLACK_WEBHOOK }}
+      - name: Update release branch
+        run: |
+          git branch -f release-${{ inputs.environment }} HEAD
+          git push -f origin release-${{ inputs.environment }}
+      - name: Send failure message
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
+        if: failure()
+        with:
+          message: ":warning: Build failed for ${{ inputs.image-name }}"
+          slack-url: ${{ secrets.SLACK_WEBHOOK }}
+      - name: Run E2E tests
+        if: inputs.environment != 'prod'
+        uses: octokit/request-action@v2.x
+        with:
+          route: POST /repos/nationalarchives/tdr-e2e-tests/actions/workflows/ci.yml/dispatches
+          ref: master
+          inputs: "{\"environment\": \"${{ inputs.environment }}\"}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
