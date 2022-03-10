@@ -24,6 +24,6 @@ jobs:
         id: slack-send
         with:
           message: test
-          url: https://example.com
+          slack-url: https://example.com
       - run: exit 1
         if: steps.slack-send.outputs.status != 301
