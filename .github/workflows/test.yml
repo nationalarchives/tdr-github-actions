@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-          echo "test" > tmp
+          echo "111111111111" > tmp
           git add tmp
       - uses: ./.github/actions/run-git-secrets
         id: run-git-secrets
@@ -20,3 +20,10 @@ jobs:
         if: steps.run-git-secrets.outcome == 'success'
       - run: exit 0
         if: steps.run-git-secrets.outcome == 'failure'
+      - uses: ./.github/actions/slack-send
+        id: slack-send
+        with:
+          message: test
+          url: https://example.com
+      - run: exit 1
+        if: steps.slack-send.outputs.status != 301
