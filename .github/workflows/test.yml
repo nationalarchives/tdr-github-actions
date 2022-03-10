@@ -18,12 +18,11 @@ jobs:
       - run: exit 1
         continue-on-error: false
         if: steps.run-git-secrets.outcome == 'success'
-      - run: exit 0
-        if: steps.run-git-secrets.outcome == 'failure'
       - uses: ./.github/actions/slack-send
         id: slack-send
         with:
           message: test
           slack-url: https://example.com
       - run: exit 1
-        if: steps.slack-send.outputs.status != 301
+        continue-on-error: false
+        if: steps.slack-send.outputs.status != 200
