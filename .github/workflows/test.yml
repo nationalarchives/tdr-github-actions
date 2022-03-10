@@ -14,4 +14,6 @@ jobs:
           git add tmp
       - uses: ./.github/actions/run-git-secrets
       - run: exit 1
-        if: ${{ !failure() }}
+        if: ${{ success() }}
+      - run: exit 0
+        if: ${{ failure() }}
