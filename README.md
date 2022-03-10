@@ -114,6 +114,14 @@ jobs:
       SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 ```
 
+### Test
+This workflow test the custom actions and runs on push and pull request creation. It carries out the following steps:
+* Adds the string 111111111111 to a tmp file and adds it.
+* Runs the git secrets custom action.
+* Checks that the git secrets call fails.
+* Runs the slack send custom action with an input url of example.com.
+* Checks the status returned is 200.
+
 ## Custom Actions
 
 ### Slack send
@@ -128,6 +136,10 @@ It sends a message to the webhook provided in the secret passed to the action.
 
 #### `slack-url`
 **Required** The webhook url to send the message to. You cannot explicitly set secrets in a custom action but GitHub knows this is sensitive and won't print it.
+
+#### Outputs
+#### `status`
+The http status code of the response from the slack URL post.
 
 #### `Example usage`
 ```yaml
