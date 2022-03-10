@@ -9,4 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - run: |
+          echo "111111111111" > tmp
+          git add tmp
       - uses: ./.github/actions/run-git-secrets
+      - run: exit 1
+        if: ${{ !failure() }}
