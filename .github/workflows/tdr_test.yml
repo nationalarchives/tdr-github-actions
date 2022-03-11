@@ -1,0 +1,35 @@
+name: TDR Run git secrets and tests
+on:
+  workflow_call:
+    inputs:
+      repo-name:
+        required: true
+        type: string
+      test-command:
+        required: true
+        type: string
+    secrets:
+      MANAGEMENT_ACCOUNT:
+        required: true
+      SLACK_WEBHOOK:
+        required: true
+
+jobs:
+  pre-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: nationalarchives/tdr-github-actions/.github/actions/run-git-secrets@main
+      - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
+        if: failure()
+        with:
+          message: ":warning: Secrets found in repository ${{ inputs.repo-name }}"
+          slack-url: ${{ secrets.SLACK_WEBHOOK }}
+      - name: Configure AWS credentials from management account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.MANAGEMENT_ACCOUNT }}:role/TDRGithubActionsRoleMgmt
+          aws-region: eu-west-2
+          role-session-name: APIDownloadDependencies
+      - uses: coursier/cache-action@v6
+      - run: ${{ inputs.test-command }}

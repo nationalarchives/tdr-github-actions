@@ -1,0 +1,24 @@
+name: 'Send slack message'
+description: 'Sends a slack message to the provided url'
+inputs:
+  message:
+    description: 'The slack message'
+    required: true
+  slack-url:
+    description: 'The slack webhook url'
+    required: true
+outputs:
+  status:
+    description: The status code from the slack request
+    value: ${{ steps.send-to-slack.outputs.status }}
+runs:
+  using: "composite"
+  steps:
+    - run: pip install requests
+      shell: bash
+    - id: send-to-slack
+      run: |
+        import requests
+        res = requests.post("${{ inputs.slack-url }}", json={"text" : "${{ inputs.message }}"})
+        print(f"::set-output name=status::{res.status_code}")
+      shell: python

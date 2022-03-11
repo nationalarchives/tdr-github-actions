@@ -1,0 +1,28 @@
+name: TDR Run custom action tests
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          echo "111111111111" > tmp
+          git add tmp
+      - uses: ./.github/actions/run-git-secrets
+        id: run-git-secrets
+        continue-on-error: true
+      - run: exit 1
+        continue-on-error: false
+        if: steps.run-git-secrets.outcome == 'success'
+      - uses: ./.github/actions/slack-send
+        id: slack-send
+        with:
+          message: test
+          slack-url: https://example.com
+      - run: exit 1
+        continue-on-error: false
+        if: steps.slack-send.outputs.status != 200
