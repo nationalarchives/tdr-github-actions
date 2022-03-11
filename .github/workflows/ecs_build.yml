@@ -1,4 +1,4 @@
-name: TDR Tag and pre deploy
+name: TDR ECS Build Images
 on:
   workflow_call:
     inputs:

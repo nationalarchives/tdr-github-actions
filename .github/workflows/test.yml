@@ -1,4 +1,4 @@
-name: TDR Run API tests
+name: TDR Run custom action tests
 on:
   pull_request:
   push:

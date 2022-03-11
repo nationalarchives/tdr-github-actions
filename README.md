@@ -2,6 +2,8 @@
 
 This is a repository of [reusable workflows](https://docs.github.com/en/actions/using-workflows/reusing-workflows) and [custom actions](https://docs.github.com/en/actions/creating-actions/about-custom-actions) to use with our repository builds.
 
+See the [GitHub actions](https://docs.github.com/en/actions) page for more information.
+
 ## Reusable workflows
 
 ### TDR test
@@ -115,7 +117,7 @@ jobs:
 ```
 
 ### Test
-This workflow test the custom actions and runs on push and pull request creation. It carries out the following steps:
+This workflow tests the custom actions and runs on push and pull request creation. It carries out the following steps:
 * Adds the string 111111111111 to a tmp file and adds it.
 * Runs the git secrets custom action.
 * Checks that the git secrets call fails.
