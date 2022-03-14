@@ -39,7 +39,7 @@ jobs:
           aws-region: eu-west-2
           role-session-name: ECRLogin
       - id: role-name
-        run: print(f"::set-output name=role-name::TDRGitHubECSUpdateRole{'${{ inputs.enironment }}'.title()")
+        run: print(f"::set-output name=role-name::TDRGitHubECSUpdateRole{'${{ inputs.environment }}'.title()}")
       - name: Login to ECR
         uses: docker/login-action@v1
         with:
