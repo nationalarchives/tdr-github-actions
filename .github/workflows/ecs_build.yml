@@ -14,9 +14,9 @@ on:
       WORKFLOW_PAT:
         required: true
     outputs:
-      new-version:
+      next-version:
         description: "The next version of the project"
-        value: ${{ jobs.pre-deploy.outputs.new-version }}
+        value: ${{ jobs.pre-deploy.outputs.next-version }}
 
 permissions:
   id-token: write
@@ -25,7 +25,7 @@ jobs:
   pre-deploy:
     runs-on: ubuntu-latest
     outputs:
-      new-version: ${{ steps.next-tag.outputs.new-version }}
+      next-version: ${{ steps.next-tag.outputs.next-version }}
     steps:
       - uses: actions/checkout@v2
       - uses: coursier/cache-action@v6
@@ -41,17 +41,15 @@ jobs:
           registry: ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com
       - run: pip install requests
       - id: next-tag
-        run: |
-          import requests
-          json = requests.get("${{ github.api_url }}/repos/nationalarchives/${{ inputs.repo-name }}/tags").json()
-          print(f"::set-output name=new-version::v{int(json[0]['name'][1:4]) + 1}")
-        shell: python
+        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@main
+        with:
+          repo-name: ${{ inputs.repo-name }}
       - name: Build new image version
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         run: |
           ${{ inputs.build-command }}
-          docker build -t ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/consignment-api:${{ steps.next-tag.outputs.new-version }} .
-          docker push ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/consignment-api:${{ steps.next-tag.outputs.new-version }}
-          git tag ${{ steps.next-tag.outputs.new-version }}
-          git push origin ${{ steps.next-tag.outputs.new-version }}
+          docker build -t ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/consignment-api:${{ steps.next-tag.outputs.next-version }} .
+          docker push ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/consignment-api:${{ steps.next-tag.outputs.next-version }}
+          git tag ${{ steps.next-tag.outputs.next-version }}
+          git push origin ${{ steps.next-tag.outputs.next-version }}
