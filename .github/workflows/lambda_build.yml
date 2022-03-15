@@ -1,4 +1,4 @@
-name: TDR ECS Build Images
+name: TDR Build Lambda
 on:
   workflow_call:
     inputs:

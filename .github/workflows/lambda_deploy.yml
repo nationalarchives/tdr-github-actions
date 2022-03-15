@@ -1,4 +1,4 @@
-name: TDR Deploy to ECS
+name: TDR Deploy to Lambda
 on:
   workflow_call:
     inputs:
