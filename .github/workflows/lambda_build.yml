@@ -37,7 +37,7 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::${{ secrets.MANAGEMENT_ACCOUNT }}:role/TDRGithubActionsRoleMgmt
           aws-region: eu-west-2
-          role-session-name: APIDownloadDependencies
+          role-session-name: GitHubActionsRole
       - run: pip install requests
       - id: next-tag
         uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@lambda-build
