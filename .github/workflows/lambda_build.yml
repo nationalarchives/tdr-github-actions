@@ -41,6 +41,8 @@ jobs:
       - run: pip install requests
       - id: next-tag
         uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@lambda-build
+        with:
+          repo-name: ${{ inputs.repo-name }}
       - name: Build new image version
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
