@@ -49,4 +49,4 @@ jobs:
           aws s3 cp target/scala-2.13/${{ inputs.artifact-name }}.jar s3://tdr-backend-code-mgmt/${{ steps.next-tag.outputs.new-version }}/${{ inputs.artifact-name }}.jar
           git tag ${{ steps.next-tag.outputs.new-version }}
           git push origin ${{ steps.next-tag.outputs.new-version }}
-          gh release upload ${{ steps.next-tag.outputs.new-version }} target/scala-2.13/${{ inputs.artifact -name }}.jar ${{ inputs.artifact-name }}.jar
+          gh release upload ${{ steps.next-tag.outputs.new-version }} target/scala-2.13/${{ inputs.artifact-name }}.jar ${{ inputs.artifact-name }}.jar
