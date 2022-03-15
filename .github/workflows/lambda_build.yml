@@ -17,9 +17,9 @@ on:
       WORKFLOW_PAT:
         required: true
     outputs:
-      new-version:
+      next-version:
         description: "The next version of the project"
-        value: ${{ jobs.pre-deploy.outputs.new-version }}
+        value: ${{ jobs.pre-deploy.outputs.next-version }}
 
 permissions:
   id-token: write
@@ -28,7 +28,7 @@ jobs:
   pre-deploy:
     runs-on: ubuntu-latest
     outputs:
-      new-version: ${{ steps.next-tag.outputs.new-version }}
+      next-version: ${{ steps.next-tag.outputs.next-version }}
     steps:
       - uses: actions/checkout@v2
       - uses: coursier/cache-action@v6
@@ -48,7 +48,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         run: |
           sbt assembly
-          aws s3 cp target/scala-2.13/${{ inputs.artifact-name }}.jar s3://tdr-backend-code-mgmt/${{ steps.next-tag.outputs.new-version }}/${{ inputs.artifact-name }}.jar
-          git tag ${{ steps.next-tag.outputs.new-version }}
-          git push origin ${{ steps.next-tag.outputs.new-version }}
-          gh release upload ${{ steps.next-tag.outputs.new-version }} target/scala-2.13/${{ inputs.artifact-name }}.jar ${{ inputs.artifact-name }}.jar
+          aws s3 cp target/scala-2.13/${{ inputs.artifact-name }}.jar s3://tdr-backend-code-mgmt/${{ steps.next-tag.outputs.next-version }}/${{ inputs.artifact-name }}.jar
+          git tag ${{ steps.next-tag.outputs.next-version }}
+          git push origin ${{ steps.next-tag.outputs.next-version }}
+          gh release upload ${{ steps.next-tag.outputs.next-version }} target/scala-2.13/${{ inputs.artifact-name }}.jar ${{ inputs.artifact-name }}.jar
