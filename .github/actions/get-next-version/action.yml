@@ -1,0 +1,21 @@
+name: 'Get the next version'
+description: 'Gets the next version based on the existing git tag'
+inputs:
+  repo-name:
+    description: 'The name of the repository'
+    required: true
+outputs:
+  next-version:
+    description: The next version for the repository
+    value: ${{ steps.next-tag.outputs.next-version }}
+runs:
+  using: "composite"
+  steps:
+    - run: pip install requests
+      shell: bash
+    - id: next-tag
+      run: |
+         import requests
+         json = requests.get("${{ github.api_url }}/repos/nationalarchives/${{ inputs.repo-name }}/tags").json()
+         print(f"::set-output name=next-version::v{int(json[0]['name'][1:4]) + 1}")
+      shell: python
