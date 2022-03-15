@@ -44,8 +44,8 @@ jobs:
           role-session-name: ECRLogin
       - name: Deploy to lambda
         run: |
-              aws lambda update-function-code --function-name tdr-${{ inputs.lambda-name }}-${{ inputs.environment }} --s3-bucket tdr-backend-code-mgmt --s3-key ${{ inputs.to-deploy }}/${{ inputs.deployment-package }}
-              aws lambda wait function-updated --function-name tdr-${{ inputs.lambda-name }}-${{ inputs.environment }}
+              aws lambda update-function-code --function-name tdr-${{ inputs.lambda-name }}-${{ inputs.environment }} --s3-bucket tdr-backend-code-mgmt --s3-key ${{ inputs.to-deploy }}/${{ inputs.deployment-package }} > /dev/null
+              aws lambda wait function-updated --function-name tdr-${{ inputs.lambda-name }}-${{ inputs.environment }} > /dev/null
       - name: Send success message
         uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
         with:
