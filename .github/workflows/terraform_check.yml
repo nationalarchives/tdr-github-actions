@@ -8,7 +8,7 @@ on:
         required: true
 
 jobs:
-  terraform-plan:
+  terraform-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
