@@ -1,6 +1,11 @@
 name: TDR Run git secrets and tests
 on:
   workflow_call:
+    inputs:
+      use-workspace:
+        type: boolean
+        required: false
+        default: true
     secrets:
       MANAGEMENT_ACCOUNT:
         required: true
@@ -32,6 +37,7 @@ jobs:
         id: init
         run: terraform init
       - name: Select integration workspace
+        if: inputs.use-workspace
         run: terraform workspace select intg
       - name: Terraform Validate
         id: validate
