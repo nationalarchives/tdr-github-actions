@@ -17,5 +17,5 @@ runs:
       run: |
          import requests
          json = requests.get("${{ github.api_url }}/repos/nationalarchives/${{ inputs.repo-name }}/tags").json()
-         print(f"::set-output name=next-version::v{int(json[0]['name'][1:4]) + 1}")
+         print(f"::set-output name=next-version::v{int(json[0]['name'][1:]) + 1}")
       shell: python
