@@ -8,12 +8,6 @@ on:
       test-command:
         required: true
         type: string
-    secrets:
-      MANAGEMENT_ACCOUNT:
-        required: true
-      SLACK_WEBHOOK:
-        required: true
-
 jobs:
   test:
     runs-on: ubuntu-latest
