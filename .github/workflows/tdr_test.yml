@@ -25,11 +25,6 @@ jobs:
         with:
           message: ":warning: Secrets found in repository ${{ inputs.repo-name }}"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
-      - name: Configure AWS credentials from management account
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: arn:aws:iam::${{ secrets.MANAGEMENT_ACCOUNT }}:role/TDRGithubActionsRoleMgmt
-          aws-region: eu-west-2
-          role-session-name: APIDownloadDependencies
+      - run: git config --global --add github.token ${{ secrets.GITHUB_TOKEN }}
       - uses: coursier/cache-action@v6
       - run: ${{ inputs.test-command }}
