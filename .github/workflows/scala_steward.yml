@@ -27,3 +27,4 @@ jobs:
           signing-key: ${{ secrets.GPG_KEY_ID }}
           author-email: ${{ steps.import_gpg.outputs.email }}
           author-name: ${{ steps.import_gpg.outputs.name }}
+          repos-file: 'repos.md'
