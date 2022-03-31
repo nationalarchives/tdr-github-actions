@@ -44,7 +44,7 @@ jobs:
           role-session-name: GitHubActionsRole
       - run: pip install requests
       - id: next-tag
-        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@main
+        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@allow-sub-project-builds
         with:
           repo-name: ${{ inputs.repo-name }}
       - name: Build new image version
