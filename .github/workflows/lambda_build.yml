@@ -11,6 +11,10 @@ on:
       artifact-name:
         required: true
         type: string
+      artifact-path:
+        required: false
+        type: string
+        default: target/scala-2.13
     secrets:
       MANAGEMENT_ACCOUNT:
         required: true
@@ -47,8 +51,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         run: |
-          sbt assembly
-          aws s3 cp target/scala-2.13/${{ inputs.artifact-name }}.jar s3://tdr-backend-code-mgmt/${{ steps.next-tag.outputs.next-version }}/${{ inputs.artifact-name }}.jar
+          ${{ inputs.build-command }}
+          aws s3 cp ${{ inputs.artifact-path }}/${{ inputs.artifact-name }}.jar s3://tdr-backend-code-mgmt/${{ steps.next-tag.outputs.next-version }}/${{ inputs.artifact-name }}.jar
           git tag ${{ steps.next-tag.outputs.next-version }}
           git push origin ${{ steps.next-tag.outputs.next-version }}
-          gh release create ${{ steps.next-tag.outputs.next-version }} target/scala-2.13/${{ inputs.artifact-name }}.jar
+          gh release create ${{ steps.next-tag.outputs.next-version }} ${{ inputs.artifact-path }}/${{ inputs.artifact-name }}.jar
