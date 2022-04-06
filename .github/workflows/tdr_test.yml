@@ -6,9 +6,11 @@ on:
         required: true
         type: string
       test-command:
-        required: false
+        required: true
         type: string
     secrets:
+      MANAGEMENT_ACCOUNT:
+        required: false
       SLACK_WEBHOOK:
         required: true
 
