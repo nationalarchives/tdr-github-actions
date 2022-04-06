@@ -19,6 +19,6 @@ runs:
     - id: send-to-slack
       run: |
         import requests
-        res = requests.post("${{ inputs.slack-url }}", json={"text" : "${{ inputs.message }}"})
+        res = requests.post("${{ inputs.slack-url }}", json={"text" : """${{ inputs.message }}"""})
         print(f"::set-output name=status::{res.status_code}")
       shell: python
