@@ -10,7 +10,7 @@ on:
         type: string
     secrets:
       MANAGEMENT_ACCOUNT:
-        required: true
+        required: false
       SLACK_WEBHOOK:
         required: true
 
