@@ -11,6 +11,10 @@ on:
       artifact-name:
         required: true
         type: string
+      artifact-file-type:
+        required: false
+        type: string
+        default: jar
       artifact-path:
         required: false
         type: string
@@ -52,7 +56,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         run: |
           ${{ inputs.build-command }}
-          aws s3 cp ${{ inputs.artifact-path }}/${{ inputs.artifact-name }}.jar s3://tdr-backend-code-mgmt/${{ steps.next-tag.outputs.next-version }}/${{ inputs.artifact-name }}.jar
+          aws s3 cp ${{ inputs.artifact-path }}/${{ inputs.artifact-name }}.${{ inputs.artifact-file-type }} s3://tdr-backend-code-mgmt/${{ steps.next-tag.outputs.next-version }}/${{ inputs.artifact-name }}.${{ inputs.artifact-file-type }}
           git tag ${{ steps.next-tag.outputs.next-version }}
           git push origin ${{ steps.next-tag.outputs.next-version }}
-          gh release create ${{ steps.next-tag.outputs.next-version }} ${{ inputs.artifact-path }}/${{ inputs.artifact-name }}.jar
+          gh release create ${{ steps.next-tag.outputs.next-version }} ${{ inputs.artifact-path }}/${{ inputs.artifact-name }}.${{ inputs.artifact-file-type }}
