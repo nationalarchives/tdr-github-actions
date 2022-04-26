@@ -6,6 +6,10 @@ on:
         type: boolean
         required: false
         default: true
+      working-directory:
+        type: string
+        required: false
+        default: .
     secrets:
       MANAGEMENT_ACCOUNT:
         required: true
@@ -14,6 +18,9 @@ on:
 jobs:
   terraform-check:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
