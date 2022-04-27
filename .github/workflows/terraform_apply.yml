@@ -9,6 +9,9 @@ on:
       repo-name:
         type: string
         required: true
+      environment:
+        type: string
+        required: true
     secrets:
       MANAGEMENT_ACCOUNT:
         required: true
