@@ -14,6 +14,10 @@ on:
         required: true
       WORKFLOW_PAT:
         required: true
+      SLACK_WEBHOOK:
+        required: true
+      ACCOUNT_NUMBER:
+        required: true
 jobs:
   setup:
     runs-on: ubuntu-latest
