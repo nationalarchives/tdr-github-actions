@@ -71,7 +71,7 @@ jobs:
       - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
         with:
           message: |
-            :book: Terraform plan ready for environment ${{ inputs.environment }}
+            :book: Terraform plan ready for repository ${{ inputs.repo-name }} environment ${{ inputs.environment }}
             :log: View the <${{ steps.plan.outputs.log-url }}|plan logs> in the management account.
             :white_check_mark: <https://github.com/nationalarchives/${{ inputs.repo-name }}/actions/runs/${{ github.run_id }}|Approve the workflow>
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
