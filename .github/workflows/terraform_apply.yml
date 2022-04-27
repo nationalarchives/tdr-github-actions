@@ -21,6 +21,12 @@ on:
         required: true
       ACCOUNT_NUMBER:
         required: true
+      INTG_ACCOUNT_NUMBER:
+        required: false
+      STAGING_ACCOUNT_NUMBER:
+        required: false
+      PROD_ACCOUNT_NUMBER:
+        required: false
 jobs:
   setup:
     runs-on: ubuntu-latest
