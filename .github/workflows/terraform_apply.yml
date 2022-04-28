@@ -1,4 +1,4 @@
-name: TDR Terraform apply
+name: TDR Terraform plan and apply
 on:
   workflow_call:
     inputs:
