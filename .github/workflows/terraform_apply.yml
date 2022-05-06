@@ -42,6 +42,9 @@ jobs:
         shell: python
   plan:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
     needs: setup
     steps:
       - name: Checkout
@@ -67,7 +70,7 @@ jobs:
           pip install boto3
           terraform plan -no-color -out=out > /dev/null
           terraform show -no-color out > out.plan
-          python .github/scripts/logs.py out.plan "${{ github.run_id }}${{ github.run_attempt }}" ${{ inputs.environment }}
+          python $GITHUB_WORKSPACE/.github/scripts/logs.py out.plan "${{ github.run_id }}${{ github.run_attempt }}" ${{ inputs.environment }}
       - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
         with:
           message: |
@@ -77,6 +80,9 @@ jobs:
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
   apply:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
     needs:
       - plan
       - setup
