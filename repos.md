@@ -1,5 +1,6 @@
 # repos.md
 - nationalarchives/tdr-api-update
+- nationalarchives/tdr-auth-server
 - nationalarchives/tdr-auth-utils
 - nationalarchives/tdr-aws-utils
 - nationalarchives/tdr-backend-check-performance
