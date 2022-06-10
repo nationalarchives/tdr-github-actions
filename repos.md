@@ -13,6 +13,7 @@
 - nationalarchives/tdr-download-files
 - nationalarchives/tdr-e2e-tests
 - nationalarchives/tdr-ecr-scan
+- nationalarchives/tdr-export-status-update
 - nationalarchives/tdr-file-format
 - nationalarchives/tdr-generated-graphql
 - nationalarchives/tdr-graphql-client
