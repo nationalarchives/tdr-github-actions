@@ -19,6 +19,7 @@
 - nationalarchives/tdr-graphql-client
 - nationalarchives/tdr-keycloak-user-management
 - nationalarchives/tdr-notifications
+- nationalarchives/tdr-rotate-keycloak-secrets
 - nationalarchives/tdr-scripts
 - nationalarchives/tdr-sign-cookies
 - nationalarchives/tdr-transfer-frontend
