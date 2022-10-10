@@ -58,6 +58,9 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.MANAGEMENT_ACCOUNT }}:role/TDRGithubTerraformAssumeRole${{ needs.setup.outputs.title-environment }}
           aws-region: eu-west-2
           role-session-name: TerraformRole
+      - uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.3.2
       - name: Terraform Plan
         id: plan
         env:
@@ -99,6 +102,9 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.MANAGEMENT_ACCOUNT }}:role/TDRGithubTerraformAssumeRole${{ needs.setup.outputs.title-environment }}
           aws-region: eu-west-2
           role-session-name: TerraformRole
+      - uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.3.2
       - name: Run apply
         env:
           GITHUB_OWNER: nationalarchives
