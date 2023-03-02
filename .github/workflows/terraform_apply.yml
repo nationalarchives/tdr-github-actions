@@ -36,9 +36,11 @@ jobs:
     steps:
       - id: set-environment-names
         run: |
+          import os
           env = "${{ inputs.environment }}"
-          print(f"::set-output name=account_number_secret::{env.upper()}_ACCOUNT_NUMBER")
-          print(f"::set-output name=title_environment::{env.title()}")
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+            print(f"title-environment={env.title()}", file=fh)
+            print(f"account-number-secret={env.upper()}_ACCOUNT_NUMBER", file=fh)
         shell: python
   plan:
     runs-on: ubuntu-latest
@@ -48,12 +50,12 @@ jobs:
     needs: setup
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
           token: ${{ secrets.WORKFLOW_PAT }}
       - name: Configure AWS credentials for Lambda
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           role-to-assume: arn:aws:iam::${{ secrets.MANAGEMENT_ACCOUNT }}:role/TDRGithubTerraformAssumeRole${{ needs.setup.outputs.title-environment }}
           aws-region: eu-west-2
@@ -92,12 +94,12 @@ jobs:
     environment: ${{ inputs.environment }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
           token: ${{ secrets.WORKFLOW_PAT }}
       - name: Configure AWS credentials for Lambda
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           role-to-assume: arn:aws:iam::${{ secrets.MANAGEMENT_ACCOUNT }}:role/TDRGithubTerraformAssumeRole${{ needs.setup.outputs.title-environment }}
           aws-region: eu-west-2
