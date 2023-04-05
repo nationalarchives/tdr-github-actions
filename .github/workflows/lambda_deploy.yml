@@ -32,16 +32,36 @@ jobs:
     environment: ${{ inputs.environment }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - id: role-name
-        run: print(f"::set-output name=role-name::TDRGithubActionsDeployLambda{'${{ inputs.environment }}'.title()}")
+        run: |
+          import os
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as fh: 
+            print(f"role-name=TDRGithubActionsDeployLambda{'${{ inputs.environment }}'.title()}", file=fh)
         shell: python
       - name: Configure AWS credentials for Lambda
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           role-to-assume: arn:aws:iam::${{ secrets.ACCOUNT_NUMBER }}:role/${{ steps.role-name.outputs.role-name }}
           aws-region: eu-west-2
           role-session-name: ECRLogin
+      - run: pip install boto3
+      - name: Check deployed environment variables
+        shell: python
+        run: |
+            from sys import exit
+            from re import findall
+            from os.path import exists
+            import boto3
+            conf = "src/main/resources/application.conf"
+            if exists(conf):
+              with open(conf) as file:
+                resp = boto3.client("lambda").get_function_configuration(FunctionName="tdr-${{ inputs.lambda-name }}-${{ inputs.environment }}")
+                lambda_env_vars = resp["Environment"]["Variables"]
+                all_env_vars = filter(lambda x: x != "AWS_LAMBDA_FUNCTION_NAME", findall("\\$\\{([A-Z_]*)\\}", file.read()))
+                exit(len(set(all_env_vars).difference(set(lambda_env_vars))))
+            else:
+              exit(0)
       - name: Deploy to lambda
         run: |
               aws lambda update-function-code --function-name tdr-${{ inputs.lambda-name }}-${{ inputs.environment }} --s3-bucket tdr-backend-code-mgmt --s3-key ${{ inputs.to-deploy }}/${{ inputs.deployment-package }} > /dev/null
