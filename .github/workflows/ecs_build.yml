@@ -6,7 +6,7 @@ on:
         required: true
         type: string
       build-command:
-        required: true
+        required: false
         type: string
       image-name:
         required: true
@@ -51,7 +51,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         run: |
-          ${{ inputs.build-command }}
+          {{ if inputs.build-command }}
+            ${{ inputs.build-command }}
+          {{ endif }}
           docker build -t ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }} .
           docker push ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }}
           git tag ${{ steps.next-tag.outputs.next-version }}
