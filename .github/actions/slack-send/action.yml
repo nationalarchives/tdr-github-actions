@@ -19,6 +19,8 @@ runs:
     - id: send-to-slack
       run: |
         import requests
+        import os
         res = requests.post("${{ inputs.slack-url }}", json={"text" : """${{ inputs.message }}"""})
-        print(f"::set-output name=status::{res.status_code}")
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as fh: 
+          print(f"status={res.status_code}", file=fh)
       shell: python

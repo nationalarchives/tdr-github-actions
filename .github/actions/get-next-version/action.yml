@@ -15,12 +15,13 @@ runs:
       shell: bash
     - id: next-tag
       run: |
-         import requests, re, semver
+         import requests, re, semver, os
          json = requests.get("${{ github.api_url }}/repos/nationalarchives/${{ inputs.repo-name }}/tags").json()
          version = json[0]['name']
-         if re.search("v\d*$", version) != None:
-           print(f"::set-output name=next-version::v{int(version[1:]) + 1}")
-         else:
-           next_version = str(semver.parse_version_info(version[1:]).bump_patch())
-           print(f"::set-output name=next-version::v{next_version}")
+         with open(os.environ['GITHUB_OUTPUT'], 'a') as fh: 
+           if re.search("v\d*$", version) != None:
+             print(f"next-version=v{int(version[1:]) + 1}", file=fh)
+           else:
+             next_version = str(semver.parse_version_info(version[1:]).bump_patch())
+             print(f"next-version=v{next_version}", file=fh)
       shell: python
