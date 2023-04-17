@@ -51,7 +51,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         run: |
-          if [ "${{ inputs.build-command }}" ]; then
+          if [ ${{ inputs.build-command }} ]; then
             ${{ inputs.build-command }}
           fi
           docker build -t ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }} .
