@@ -19,8 +19,6 @@ on:
         required: true
       GPG_PASSPHRASE:
         required: true
-      NPM_TOKEN:
-        required: true
 env:
   RUN_NUMBER: ${{ github.run_id }}${{ github.run_attempt }}
   BRANCH_NAME: version-bump-${{ github.run_id }}${{ github.run_attempt }}
