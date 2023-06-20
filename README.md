@@ -118,7 +118,7 @@ jobs:
 
 ### Test
 This workflow tests the custom actions and runs on push and pull request creation. It carries out the following steps:
-* Adds the string 111111111111 to a tmp file and adds it.
+* Adds a string of 12 '1's to a tmp file and adds it.
 * Runs the git secrets custom action.
 * Checks that the git secrets call fails.
 * Runs the slack send custom action with an input url of example.com.
