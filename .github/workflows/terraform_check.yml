@@ -10,6 +10,10 @@ on:
         type: string
         required: false
         default: .
+      terraform-version:
+        type: string
+        required: false
+        default: 1.3.2
     secrets:
       MANAGEMENT_ACCOUNT:
         required: true
@@ -41,7 +45,7 @@ jobs:
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.3.2
+          terraform_version: ${{ inputs.terraform-version }}
       - name: Terraform Format
         id: fmt
         run: terraform fmt -check --recursive
