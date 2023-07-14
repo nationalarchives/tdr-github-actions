@@ -32,6 +32,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: coursier/cache-action@v6
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
       - name: Configure AWS credentials from management account
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
@@ -48,10 +52,6 @@ jobs:
         with:
           repo-name: ${{ inputs.repo-name }}
       - name: Run build-command
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         if: ${{ inputs.build-command }}
