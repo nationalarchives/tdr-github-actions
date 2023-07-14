@@ -48,6 +48,10 @@ jobs:
         with:
           repo-name: ${{ inputs.repo-name }}
       - name: Run build-command
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         if: ${{ inputs.build-command }}
