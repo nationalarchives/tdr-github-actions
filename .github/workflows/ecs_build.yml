@@ -11,6 +11,11 @@ on:
       image-name:
         required: true
         type: string
+      java-version:
+        description: "Version of Java required to build project"
+        required: false
+        type: string
+        default: '11'
     secrets:
       MANAGEMENT_ACCOUNT:
         required: true
@@ -34,7 +39,7 @@ jobs:
       - uses: coursier/cache-action@v6
       - uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
       - name: Configure AWS credentials from management account
         uses: aws-actions/configure-aws-credentials@v1-node16
