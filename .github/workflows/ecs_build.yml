@@ -12,6 +12,7 @@ on:
         required: true
         type: string
       java-version:
+        description: "Version of Java required to build project"
         required: false
         type: string
         default: '11'
