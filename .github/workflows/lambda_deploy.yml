@@ -82,8 +82,7 @@ jobs:
           message: ":warning: Build failed for ${{ inputs.lambda-name }}"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Run E2E tests
-        needs: [inputs.environment]
-        if: needs.inputs.environment != 'prod' || needs.inputs.environment != 'mgmt'
+        if: inputs.environment != 'prod' || inputs.environment != 'mgmt'
         uses: octokit/request-action@v2.x
         with:
           route: POST /repos/nationalarchives/tdr-e2e-tests/actions/workflows/ci.yml/dispatches
