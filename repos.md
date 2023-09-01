@@ -5,6 +5,7 @@
 - nationalarchives/tdr-auth-utils
 - nationalarchives/tdr-aws-utils
 - nationalarchives/tdr-backend-check-performance
+- nationalarchives/tdr-backend-checks-results
 - nationalarchives/tdr-backend-checks-utils
 - nationalarchives/tdr-checksum
 - nationalarchives/tdr-consignment-api
