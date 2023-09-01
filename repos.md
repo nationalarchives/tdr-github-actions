@@ -1,4 +1,5 @@
 # repos.md
+- nationalarchives/da-reference-generator
 - nationalarchives/tdr-api-update
 - nationalarchives/tdr-auth-server
 - nationalarchives/tdr-auth-utils
