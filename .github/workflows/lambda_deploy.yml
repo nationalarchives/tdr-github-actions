@@ -14,6 +14,10 @@ on:
       to-deploy:
         required: true
         type: string
+      project:
+        type: string
+        required: false
+        default: 'tdr'
     secrets:
       ACCOUNT_NUMBER:
         required: true
@@ -56,7 +60,7 @@ jobs:
             conf = "src/main/resources/application.conf"
             if exists(conf):
               with open(conf) as file:
-                resp = boto3.client("lambda").get_function_configuration(FunctionName="tdr-${{ inputs.lambda-name }}-${{ inputs.environment }}")
+                resp = boto3.client("lambda").get_function_configuration(FunctionName="${{ input.project }}-${{ inputs.lambda-name }}-${{ inputs.environment }}")
                 lambda_env_vars = resp["Environment"]["Variables"]
                 all_env_vars = filter(lambda x: x != "AWS_LAMBDA_FUNCTION_NAME", findall("\\$\\{([A-Z_]*)\\}", file.read()))
                 exit(len(set(all_env_vars).difference(set(lambda_env_vars))))
@@ -64,8 +68,8 @@ jobs:
               exit(0)
       - name: Deploy to lambda
         run: |
-              aws lambda update-function-code --function-name tdr-${{ inputs.lambda-name }}-${{ inputs.environment }} --s3-bucket tdr-backend-code-mgmt --s3-key ${{ inputs.to-deploy }}/${{ inputs.deployment-package }} > /dev/null
-              aws lambda wait function-updated --function-name tdr-${{ inputs.lambda-name }}-${{ inputs.environment }} > /dev/null
+              aws lambda update-function-code --function-name ${{ input.project }}-${{ inputs.lambda-name }}-${{ inputs.environment }} --s3-bucket tdr-backend-code-mgmt --s3-key ${{ inputs.to-deploy }}/${{ inputs.deployment-package }} > /dev/null
+              aws lambda wait function-updated --function-name ${{ input.project }}-${{ inputs.lambda-name }}-${{ inputs.environment }} > /dev/null
       - name: Send success message
         uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
         with:
