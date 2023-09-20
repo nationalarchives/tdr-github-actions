@@ -20,6 +20,10 @@ on:
         type: string
         required: false
         default: 'tdr'
+      update-tag:
+        type: boolean
+        required: false
+        default: true
     secrets:
       MANAGEMENT_ACCOUNT:
         required: true
@@ -132,7 +136,9 @@ jobs:
         uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@main
         with:
           repo-name: ${{ inputs.repo-name }}
-      - run: |
+      - name: Run git tag
+        if: ${{ inputs.update-tag }}
+        run: |
           git tag ${{ steps.next-tag.outputs.next-version }}
           git push origin ${{ steps.next-tag.outputs.next-version }}
           git branch -f release-${{ inputs.environment }} HEAD
