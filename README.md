@@ -52,12 +52,21 @@ This workflow runs a build command provided as an input. It then builds a docker
 #### `build-command`
 **Required** The command to build the artifacts for this repository.
 
+#### `image-name`
+**Required** The name of the image to build.
+
+#### `java-version`
+Version of java to use to build if applicable. Defaults to version 11.
+
 #### Secrets
 #### `MANAGEMENT_ACCOUNT`
 **Required** The management account number. Used for assuming an AWS role to download our dependencies from S3.
 
 #### `WORKFLOW_PAT`
 **Required** The GitHub personal access token. Used to authenticate when pushing tags.
+
+#### `AKKA_TOKEN`
+Akka commercial licence token if needed
 
 #### Example usage
 ```yaml
