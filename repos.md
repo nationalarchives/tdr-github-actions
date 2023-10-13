@@ -26,4 +26,5 @@
 - nationalarchives/tdr-sign-cookies
 - nationalarchives/tdr-statuses
 - nationalarchives/tdr-transfer-frontend
+- nationalarchives/tdr-metadata-validation
 - nationalarchives/pull-request-monitor
