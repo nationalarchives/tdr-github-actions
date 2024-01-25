@@ -77,7 +77,7 @@ jobs:
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Update release branch
         run: |
-          git branch -f release-${{ inputs.environment }} HEAD
+          git branch -f release-${{ inputs.environment }} ${{ inputs.to-deploy }}
           git push -f origin release-${{ inputs.environment }}
       - name: Send failure message
         uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
