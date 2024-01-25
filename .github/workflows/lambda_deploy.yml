@@ -37,6 +37,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with: 
+          ref: refs/tags/${{ inputs.to-deploy }}
       - id: role-name
         run: |
           import os
@@ -77,8 +79,7 @@ jobs:
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Update release branch
         run: |
-          git fetch origin refs/tags/${{ inputs.to-deploy }}
-          git branch -f release-${{ inputs.environment }} ${{ inputs.to-deploy }}
+          git branch -f release-${{ inputs.environment }} HEAD
           git push -f origin release-${{ inputs.environment }}
       - name: Send failure message
         uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
