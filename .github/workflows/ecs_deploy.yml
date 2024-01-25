@@ -70,6 +70,7 @@ jobs:
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Update release branch
         run: |
+          git fetch origin refs/tags/${{ inputs.to-deploy }}
           git branch -f release-${{ inputs.environment }} ${{ inputs.to-deploy }}
           git push -f origin release-${{ inputs.environment }}
       - name: Send failure message
