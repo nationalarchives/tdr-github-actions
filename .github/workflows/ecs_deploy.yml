@@ -34,6 +34,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          ref: refs/tags/${{ inputs.to-deploy }}
       - name: Configure AWS credentials for ECR
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
