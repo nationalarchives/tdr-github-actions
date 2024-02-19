@@ -1,11 +1,11 @@
-name: Create pull request for steward-dependencies branches
+name: Create pull request for scala-steward-dependencies branches
 on:
   workflow_dispatch:
 
 jobs:
   create-develop-pr:
     runs-on: ubuntu-latest
-    name: Create PR from `develop` to `main/master` for multiple repositories
+    name: Create PR from `scala-steward-dependencies` to `main/master` for multiple repositories
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
