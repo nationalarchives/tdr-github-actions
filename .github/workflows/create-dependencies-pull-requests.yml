@@ -15,7 +15,7 @@ jobs:
         run: |
             repos_content=""
             while IFS= read -r line; do
-            repo_name=$(echo "$line" | sed -e 's/^- //' -e 's/:steward-dependencies//')
+            repo_name=$(echo "$line" | sed -e 's/^- //' -e 's/:scala-steward-dependencies//')
             repos_content+="$repo_name "
             done < repos.md
             echo -e "::set-output name=repos::$repos_content"
@@ -25,10 +25,10 @@ jobs:
         run: |
           for repo in ${{ steps.read-repos.outputs.repos }}; do
             default_branch=$(gh api /repos/$repo -q '.default_branch')
-            develop=$(gh api /repos/$repo/commits/refs/heads/develop -q '.sha')
+            scala_steward_branch=$(gh api /repos/$repo/commits/refs/heads/scala-steward-dependencies -q '.sha')
             main=$(gh api /repos/$repo/commits/refs/heads/$default_branch -q '.sha')
 
-            if [[ $develop != $main ]]; then
+            if [[ $scala_steward_branch != $main ]]; then
                 gh api /repos/$repo/pulls \
                   -f title="Scala Steward Updates" \
                   -f base=$default_branch \
