@@ -32,7 +32,7 @@ jobs:
                 gh api /repos/$repo/pulls \
                   -f title="Scala Steward Updates" \
                   -f base=$default_branch \
-                  -f head=develop
+                  -f head=scala-steward-dependencies
             else
                 echo "There are no updates in $repo"
             fi
