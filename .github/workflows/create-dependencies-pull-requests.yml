@@ -38,4 +38,4 @@ jobs:
             fi
           done
         env:
-          GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
+          GITHUB_TOKEN: ${{ secrets.SCALA_STEWARD_FINE_GRAINED_TOKEN }}
