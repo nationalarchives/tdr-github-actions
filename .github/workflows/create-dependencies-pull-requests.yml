@@ -1,6 +1,8 @@
 name: Create pull request for scala-steward-dependencies branches
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * MON"
 
 jobs:
   create-develop-pr:
