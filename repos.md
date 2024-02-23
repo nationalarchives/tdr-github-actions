@@ -22,7 +22,6 @@
 - nationalarchives/tdr-redacted-files:scala-steward-dependencies
 - nationalarchives/tdr-rotate-keycloak-secrets:scala-steward-dependencies
 - nationalarchives/tdr-scripts:scala-steward-dependencies
-- nationalarchives/tdr-sign-cookies:scala-steward-dependencies
 - nationalarchives/tdr-statuses:scala-steward-dependencies
 - nationalarchives/tdr-transfer-frontend:scala-steward-dependencies
 - nationalarchives/tdr-metadata-validation:scala-steward-dependencies
