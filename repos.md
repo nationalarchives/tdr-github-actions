@@ -3,7 +3,6 @@
 - nationalarchives/tdr-auth-server:scala-steward-dependencies
 - nationalarchives/tdr-auth-utils:scala-steward-dependencies
 - nationalarchives/tdr-aws-utils:scala-steward-dependencies
-- nationalarchives/tdr-backend-check-performance:scala-steward-dependencies
 - nationalarchives/tdr-backend-checks-utils:scala-steward-dependencies
 - nationalarchives/tdr-checksum:scala-steward-dependencies
 - nationalarchives/tdr-consignment-api:scala-steward-dependencies
