@@ -39,5 +39,6 @@ jobs:
                 echo "There are no updates in $repo"
             fi
           done
+          sleep 60s
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
