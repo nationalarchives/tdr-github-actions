@@ -29,7 +29,9 @@ jobs:
             default_branch=$(gh api /repos/$repo -q '.default_branch')
             scala_steward_branch=$(gh api /repos/$repo/commits/refs/heads/scala-steward-dependencies -q '.sha')
             main=$(gh api /repos/$repo/commits/refs/heads/$default_branch -q '.sha')
-
+            
+            echo "Creating pull request for $repo"
+            
             if [[ $scala_steward_branch != $main ]]; then
                 gh api /repos/$repo/pulls \
                   -f title="Scala Steward Updates" \
