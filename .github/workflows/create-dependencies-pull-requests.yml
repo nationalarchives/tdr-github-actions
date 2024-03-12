@@ -26,10 +26,11 @@ jobs:
       - name: Create Pull Request
         run: |
           for repo in ${{ steps.read-repos.outputs.repos }}; do
+            echo "Creating pull request for $repo"
             default_branch=$(gh api /repos/$repo -q '.default_branch')
             scala_steward_branch=$(gh api /repos/$repo/commits/refs/heads/scala-steward-dependencies -q '.sha')
             main=$(gh api /repos/$repo/commits/refs/heads/$default_branch -q '.sha')
-
+            
             if [[ $scala_steward_branch != $main ]]; then
                 gh api /repos/$repo/pulls \
                   -f title="Scala Steward Updates" \
@@ -39,5 +40,6 @@ jobs:
                 echo "There are no updates in $repo"
             fi
           done
+          sleep 60s
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
