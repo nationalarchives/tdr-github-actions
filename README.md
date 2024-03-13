@@ -136,9 +136,18 @@ This workflow tests the custom actions and runs on push and pull request creatio
 ### Scala Steward
 This workflow runs once per day at 08:15. It runs Scala Steward against all of the repositories in [repos.md](./repos.md).
 
-The pull requests are created using the tna-digital-archiving-jenkins user
+The pull requests are created on a branch called `scala-steward-dependencies` using the tna-digital-archiving-jenkins user
 
 There is a config file in .github/scala-steward.conf. This is ignoring updates from AWS for now because they release a new patch version every day and this is causing a lot of updates. Once AWS release a new minor version, Scala Steward will create a pull request for that.
+
+Each of the repos contains a `mergify.yml` file that will auto merge the dependency pull requests to the `scala-steward-dependencies` branch if all the tests pass.
+
+Each of the repos also contain an `upsert script` which runs automatically everytime a merge to the master/main branch occurs.
+
+The upsert script ensures the `scala-steward-dependencies` branch is always up to date with master/main so that scala-steward fetches the correct dependencies and so the mergify bot can automatically merge pull requests.
+
+There is a `create-dependencies-pull-requests.yml` workflow that runs every week on Monday that will create a `Scala Steward Updates` pull request containing all the merged dependencies for all the repos.
+The pull requests containing the merged dependencies should be auto-merged by the mergify bot if all the tests pass.
 
 ## Custom Actions
 
