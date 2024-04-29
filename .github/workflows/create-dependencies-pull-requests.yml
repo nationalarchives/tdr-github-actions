@@ -41,10 +41,11 @@ jobs:
                 -f head=scala-steward-dependencies 2>&1 || true)
               echo "Response received for $repo pull request: $response"
             else
-              if [[ $diff == 0 ]]
+              if [[ $diff == 0 ]]; then
                 echo "There are no updates in $repo"
-              elif [[ $pr_exists ]]
+              elif [[ $pr_exists ]]; then
                 echo "A PR already exists for the scala steward dependency branch in $repo"
+              fi
             fi
           done
           sleep 60s
