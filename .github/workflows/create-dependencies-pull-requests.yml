@@ -23,6 +23,9 @@ jobs:
             echo -e "::set-output name=repos::$repos_content"
         shell: bash
 
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Create Pull Request
         run: |
           for repo in ${{ steps.read-repos.outputs.repos }}; do
@@ -30,14 +33,23 @@ jobs:
             default_branch=$(gh api /repos/$repo -q '.default_branch')
             scala_steward_branch=$(gh api /repos/$repo/commits/refs/heads/scala-steward-dependencies -q '.sha')
             main=$(gh api /repos/$repo/commits/refs/heads/$default_branch -q '.sha')
+            diff=$(gh api /repos/$repo/compare/$main...scala-steward-dependencies -q '.files | length')
             
-            if [[ $scala_steward_branch != $main ]]; then
-                gh api /repos/$repo/pulls \
-                  -f title="Scala Steward Updates" \
-                  -f base=$default_branch \
-                  -f head=scala-steward-dependencies
+            if [[ $diff -gt 0 ]]; then
+              response=$(gh api /repos/$repo/pulls \
+                -f title="Scala Steward Updates" \
+                -f base=$default_branch \
+                -f head=scala-steward-dependencies 2>&1) # Capture all output including errors
+            
+              if echo "$response" | grep -q "422 Unprocessable Entity"; then
+                echo "[INFO] 422 error encountered for $repo:"
+                echo "$response" | jq -r '.message, .errors[].message'  # Assuming response is in JSON format and jq is available
+              else
+                echo "Pull request created successfully for $repo."
+                echo "$response"
+              fi
             else
-                echo "There are no updates in $repo"
+              echo "There are no updates in $repo"
             fi
           done
           sleep 60s
