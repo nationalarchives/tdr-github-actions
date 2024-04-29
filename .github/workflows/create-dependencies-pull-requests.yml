@@ -30,10 +30,11 @@ jobs:
             scala_steward_branch=$(gh api /repos/$repo/commits/refs/heads/scala-steward-dependencies -q '.sha')
             main=$(gh api /repos/$repo/commits/refs/heads/$default_branch -q '.sha')
             diff=$(gh api /repos/$repo/compare/$main...scala-steward-dependencies -q '.files | length')
-            pr_exists=$(gh api repos/$repo/pulls \
-                --jq '.[] | select(.head.ref == "scala-steward-dependencies" and .base.ref == "'$default_branch'" and .state == "open")' 2>&1)
-            if [[ $diff -gt 0 && !$pr_exists ]]; then
-              echo $pr_exists
+            existing_pull_requests=$(gh api repos/{owner}/{repo}/pulls)
+            scala_steward_pull_requests=$(echo "$pull_requests" | jq '.[] | select(.head.ref == "scala-steward-dependencies" and .base.ref == "'$default_branch'" and .state == "open")'
+            num_pull_requests=$(echo "$scala_steward_pull_requests" | jq length)
+            echo "Number of pull requests: $num_pull_requests"
+            if [[ $diff -gt 0 && $num_pull_requests == 0 ]]; then
               echo "Creating pull request for $repo"
               response=$(gh api /repos/$repo/pulls \
                 -f title="Scala Steward Updates" \
