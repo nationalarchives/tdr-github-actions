@@ -31,8 +31,9 @@ jobs:
             scala_steward_branch=$(gh api /repos/$repo/commits/refs/heads/scala-steward-dependencies -q '.sha')
             main=$(gh api /repos/$repo/commits/refs/heads/$default_branch -q '.sha')
             diff=$(gh api /repos/$repo/compare/$main...scala-steward-dependencies -q '.files | length')
-            
-            if [[ $diff -gt 0 ]]; then
+            pr_exists=$(gh api repos/$repo/pulls \
+                --jq '.[] | select(.head.ref == "scala-steward-dependencies" and .base.ref == "'$default_branch'" and .state == "open")' 2>&1)
+            if [[ $diff -gt 0 && !$pr_exists ]]; then
               response=$(gh api /repos/$repo/pulls \
                 -f title="Scala Steward Updates" \
                 -f base=$default_branch \
