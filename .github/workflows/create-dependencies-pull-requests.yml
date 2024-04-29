@@ -38,12 +38,7 @@ jobs:
                 -f base=$default_branch \
                 -f head=scala-steward-dependencies 2>&1 || true)
             
-              if echo "$response" | grep -q "422 Unprocessable Entity"; then
-                echo "[INFO] 422 error encountered for $repo:"
-                echo "$response" | jq -r '.message, .errors[].message'  # Assuming response is in JSON format and jq is available
-              else
-                echo "Pull request created successfully for $repo."
-                echo "$response"
+              echo "Response received for $repo pull request: $response"
               fi
             else
               echo "There are no updates in $repo"
