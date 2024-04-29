@@ -37,9 +37,7 @@ jobs:
                 -f title="Scala Steward Updates" \
                 -f base=$default_branch \
                 -f head=scala-steward-dependencies 2>&1 || true)
-            
               echo "Response received for $repo pull request: $response"
-              fi
             else
               echo "There are no updates in $repo"
             fi
