@@ -30,7 +30,7 @@ jobs:
             scala_steward_branch=$(gh api /repos/$repo/commits/refs/heads/scala-steward-dependencies -q '.sha')
             main=$(gh api /repos/$repo/commits/refs/heads/$default_branch -q '.sha')
             diff=$(gh api /repos/$repo/compare/$main...scala-steward-dependencies -q '.files | length')
-            existing_pull_requests=$(gh api repos/{owner}/{repo}/pulls)
+            existing_pull_requests=$(gh api repos/$repo/pulls)
             scala_steward_pull_requests=$(echo "$pull_requests" | jq '.[] | select(.head.ref == "scala-steward-dependencies" and .base.ref == "'$default_branch'" and .state == "open")')
             num_pull_requests=$(echo "$scala_steward_pull_requests" | jq length)
             echo "Number of pull requests: $num_pull_requests"
