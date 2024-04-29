@@ -36,7 +36,7 @@ jobs:
               response=$(gh api /repos/$repo/pulls \
                 -f title="Scala Steward Updates" \
                 -f base=$default_branch \
-                -f head=scala-steward-dependencies 2>&1)
+                -f head=scala-steward-dependencies 2>&1 || true)
             
               if echo "$response" | grep -q "422 Unprocessable Entity"; then
                 echo "[INFO] 422 error encountered for $repo:"
