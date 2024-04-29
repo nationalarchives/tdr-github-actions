@@ -26,7 +26,6 @@ jobs:
       - name: Create Pull Request
         run: |
           for repo in ${{ steps.read-repos.outputs.repos }}; do
-            echo "Creating pull request for $repo"
             default_branch=$(gh api /repos/$repo -q '.default_branch')
             scala_steward_branch=$(gh api /repos/$repo/commits/refs/heads/scala-steward-dependencies -q '.sha')
             main=$(gh api /repos/$repo/commits/refs/heads/$default_branch -q '.sha')
@@ -34,13 +33,18 @@ jobs:
             pr_exists=$(gh api repos/$repo/pulls \
                 --jq '.[] | select(.head.ref == "scala-steward-dependencies" and .base.ref == "'$default_branch'" and .state == "open")' 2>&1)
             if [[ $diff -gt 0 && !$pr_exists ]]; then
+              echo $pr_exists
+              echo "Creating pull request for $repo"
               response=$(gh api /repos/$repo/pulls \
                 -f title="Scala Steward Updates" \
                 -f base=$default_branch \
                 -f head=scala-steward-dependencies 2>&1 || true)
               echo "Response received for $repo pull request: $response"
             else
-              echo "There are no updates in $repo"
+              if [[ $diff == 0 ]]
+                echo "There are no updates in $repo"
+              elif [[ $pr_exists ]]
+                echo "A PR already exists for the scala steward dependency branch in $repo"
             fi
           done
           sleep 60s
