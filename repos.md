@@ -23,6 +23,7 @@
 - nationalarchives/tdr-scripts:scala-steward-dependencies
 - nationalarchives/tdr-statuses:scala-steward-dependencies
 - nationalarchives/tdr-transfer-frontend:scala-steward-dependencies
+- nationalarchives/tdr-transfer-service:scala-steward-dependencies
 - nationalarchives/tdr-metadata-validation:scala-steward-dependencies
 - nationalarchives/tdr-draft-metadata-validator:scala-steward-dependencies
 - nationalarchives/pull-request-monitor:scala-steward-dependencies
