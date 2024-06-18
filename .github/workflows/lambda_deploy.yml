@@ -18,6 +18,9 @@ on:
         type: string
         required: false
         default: 'tdr'
+      image-name:
+        type: string
+        required: false
     secrets:
       ACCOUNT_NUMBER:
         required: true
@@ -37,7 +40,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with: 
+        with:
           ref: refs/tags/${{ inputs.to-deploy }}
       - id: role-name
         run: |
@@ -55,23 +58,27 @@ jobs:
       - name: Check deployed environment variables
         shell: python
         run: |
-            from sys import exit
-            from re import findall
-            from os.path import exists
-            import boto3
-            conf = "src/main/resources/application.conf"
-            if exists(conf):
-              with open(conf) as file:
-                resp = boto3.client("lambda").get_function_configuration(FunctionName="${{ inputs.project }}-${{ inputs.lambda-name }}-${{ inputs.environment }}")
-                lambda_env_vars = resp["Environment"]["Variables"]
-                all_env_vars = filter(lambda x: x != "AWS_LAMBDA_FUNCTION_NAME", findall("\\$\\{([A-Z_]*)\\}", file.read()))
-                exit(len(set(all_env_vars).difference(set(lambda_env_vars))))
-            else:
-              exit(0)
+          from sys import exit
+          from re import findall
+          from os.path import exists
+          import boto3
+          conf = "src/main/resources/application.conf"
+          if exists(conf):
+            with open(conf) as file:
+              resp = boto3.client("lambda").get_function_configuration(FunctionName="${{ inputs.project }}-${{ inputs.lambda-name }}-${{ inputs.environment }}")
+              lambda_env_vars = resp["Environment"]["Variables"]
+              all_env_vars = filter(lambda x: x != "AWS_LAMBDA_FUNCTION_NAME", findall("\\$\\{([A-Z_]*)\\}", file.read()))
+              exit(len(set(all_env_vars).difference(set(lambda_env_vars))))
+          else:
+            exit(0)
       - name: Deploy to lambda
         run: |
-              aws lambda update-function-code --function-name ${{ inputs.project }}-${{ inputs.lambda-name }}-${{ inputs.environment }} --s3-bucket tdr-backend-code-mgmt --s3-key ${{ inputs.to-deploy }}/${{ inputs.deployment-package }} > /dev/null
-              aws lambda wait function-updated --function-name ${{ inputs.project }}-${{ inputs.lambda-name }}-${{ inputs.environment }} > /dev/null
+          if [ -n "${{ inputs.image-name }}" ]; then
+           aws lambda update-function-code --function-name ${{ inputs.project }}-${{ inputs.lambda-name }}-${{ inputs.environment }} --image-uri ${{ secrets.MANAGEMENT_ACCOUNT}}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }} > /dev/null
+          else
+           aws lambda update-function-code --function-name ${{ inputs.project }}-${{ inputs.lambda-name }}-${{ inputs.environment }} --s3-bucket tdr-backend-code-mgmt --s3-key ${{ inputs.to-deploy }}/${{ inputs.deployment-package }} > /dev/null 
+          fi
+           aws lambda wait function-updated --function-name ${{ inputs.project }}-${{ inputs.lambda-name }}-${{ inputs.environment }} > /dev/null
       - name: Send success message
         uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
         with:
