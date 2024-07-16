@@ -1,0 +1,66 @@
+name: TDR Tag ecr image with env
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      image-name:
+        required: true
+        type: string
+      to-deploy:
+        required: true
+        type: string
+    secrets:
+      ACCOUNT_NUMBER:
+        required: true
+      MANAGEMENT_ACCOUNT:
+        required: true
+      WORKFLOW_PAT:
+        required: true
+      SLACK_WEBHOOK:
+        required: true
+
+permissions:
+  id-token: write
+  contents: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: refs/tags/${{ inputs.to-deploy }}
+      - name: Configure AWS credentials for ECR
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.MANAGEMENT_ACCOUNT }}:role/TDRGithubActionsRoleMgmt
+          aws-region: eu-west-2
+          role-session-name: ECRLogin
+      - id: role-name
+        run: |
+          import os
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as fh: 
+            print(f"role-name=TDRGitHubECSUpdateRole{'${{ inputs.environment }}'.title()}", file=fh)
+        shell: python
+      - name: Login to ECR
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com
+      - name: Tag image
+        run: |
+          docker pull ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ inputs.to-deploy }}
+          docker tag ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ inputs.to-deploy }} ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ inputs.environment }}
+          docker push ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ inputs.environment }}
+      - name: Update release branch
+        run: |
+          git branch -f release-${{ inputs.environment }} HEAD
+          git push -f origin release-${{ inputs.environment }}
+      - name: Send failure message
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
+        if: failure()
+        with:
+          message: ":warning: Failed to tag ecr image ${{ inputs.image-name }}:${{ inputs.to-deploy }} with env ${{ inputs.environment }}"
+          slack-url: ${{ secrets.SLACK_WEBHOOK }}
