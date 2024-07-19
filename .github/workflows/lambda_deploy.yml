@@ -74,7 +74,7 @@ jobs:
       - name: Deploy to lambda
         run: |
           if [ -n "${{ inputs.image-name }}" ]; then
-           aws lambda update-function-code --function-name ${{ inputs.project }}-${{ inputs.lambda-name }}-${{ inputs.environment }} --image-uri ${{ secrets.MANAGEMENT_ACCOUNT}}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ inputs.to-deploy }} > /dev/null
+           aws lambda update-function-code --function-name ${{ inputs.project }}-${{ inputs.lambda-name }}-${{ inputs.environment }} --image-uri ${{ secrets.MANAGEMENT_ACCOUNT}}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ inputs.environment }} > /dev/null
           else
            aws lambda update-function-code --function-name ${{ inputs.project }}-${{ inputs.lambda-name }}-${{ inputs.environment }} --s3-bucket tdr-backend-code-mgmt --s3-key ${{ inputs.to-deploy }}/${{ inputs.deployment-package }} > /dev/null 
           fi
