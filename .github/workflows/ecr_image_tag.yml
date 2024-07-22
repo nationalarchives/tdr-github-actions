@@ -14,8 +14,6 @@ on:
     secrets:
       MANAGEMENT_ACCOUNT:
         required: true
-      WORKFLOW_PAT:
-        required: true
       SLACK_WEBHOOK:
         required: true
 
