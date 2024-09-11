@@ -1,4 +1,5 @@
 - nationalarchives/da-reference-generator:scala-steward-dependencies
+- nationalarchives/pull-request-monitor:scala-steward-dependencies
 - nationalarchives/tdr-api-update:scala-steward-dependencies
 - nationalarchives/tdr-auth-server:scala-steward-dependencies
 - nationalarchives/tdr-auth-utils:scala-steward-dependencies
@@ -10,6 +11,7 @@
 - nationalarchives/tdr-consignment-export:scala-steward-dependencies
 - nationalarchives/tdr-consignment-export-authoriser:scala-steward-dependencies
 - nationalarchives/tdr-create-db-users:scala-steward-dependencies
+- nationalarchives/tdr-draft-metadata-validator:scala-steward-dependencies
 - nationalarchives/tdr-e2e-tests:scala-steward-dependencies
 - nationalarchives/tdr-ecr-scan:scala-steward-dependencies
 - nationalarchives/tdr-export-status-update:scala-steward-dependencies
@@ -17,12 +19,11 @@
 - nationalarchives/tdr-generated-graphql:scala-steward-dependencies
 - nationalarchives/tdr-graphql-client:scala-steward-dependencies
 - nationalarchives/tdr-keycloak-user-management:scala-steward-dependencies
+- nationalarchives/tdr-metadata-validation:scala-steward-dependencies
 - nationalarchives/tdr-notifications:scala-steward-dependencies
 - nationalarchives/tdr-redacted-files:scala-steward-dependencies
 - nationalarchives/tdr-rotate-keycloak-secrets:scala-steward-dependencies
 - nationalarchives/tdr-scripts:scala-steward-dependencies
 - nationalarchives/tdr-statuses:scala-steward-dependencies
 - nationalarchives/tdr-transfer-frontend:scala-steward-dependencies
-- nationalarchives/tdr-metadata-validation:scala-steward-dependencies
-- nationalarchives/tdr-draft-metadata-validator:scala-steward-dependencies
-- nationalarchives/pull-request-monitor:scala-steward-dependencies
+- nationalarchives/tdr-transfer-service:scala-steward-dependencies
