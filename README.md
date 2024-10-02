@@ -192,6 +192,7 @@ When the image builds, it installs git secrets to an alpine container. When the 
 ## Deploying the workflows and actions.
 
 As this is an internal library, we can have the workflows in the other repositories pointed at the `main` branch of this repository. 
+
 So once changes here are merged to `main` they are available immediately to other repositories.
 
 If there is an error which means we need to use an earlier version, the calling repository can reference a specific commit. 
