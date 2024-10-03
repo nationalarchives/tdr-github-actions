@@ -25,4 +25,4 @@ jobs:
           slack-url: https://example.com
       - run: exit 1
         continue-on-error: false
-        if: steps.slack-send.outputs.status != 200
+        if: steps.slack-send.outputs.status != 405
