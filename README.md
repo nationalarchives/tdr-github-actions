@@ -136,7 +136,7 @@ This workflow tests the custom actions and runs on push and pull request creatio
 ### Scala Steward
 This workflow runs once per day at 08:15. It runs Scala Steward against all of the repositories in [repos.md](./repos.md).
 
-The pull requests are created on a branch called `scala-steward-dependencies` using the tna-digital-archiving-jenkins user
+The pull requests are created on a branch called `scala-steward-dependencies` using the tna-da-bot user
 
 There is a config file in .github/scala-steward.conf. This is ignoring updates from AWS for now because they release a new patch version every day and this is causing a lot of updates. Once AWS release a new minor version, Scala Steward will create a pull request for that.
 
