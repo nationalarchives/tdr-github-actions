@@ -86,6 +86,6 @@ jobs:
         with:
           route: POST /repos/nationalarchives/tdr-e2e-tests/actions/workflows/ci.yml/dispatches
           ref: master
-          inputs: "{\"environment\": \"${{ inputs.environment }}\", \"wait\": \"300\"}"
+          inputs: "{\"environment\": \"${{ inputs.environment }}\", \"wait\": \"300\", \"repo-details\": \"${{ inputs.image-name }}@${{ inputs.to-deploy }}\"}"
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
