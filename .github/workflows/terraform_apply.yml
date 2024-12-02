@@ -89,7 +89,7 @@ jobs:
           pip install boto3
           terraform plan -no-color -out=out > /dev/null
           terraform show -no-color out > out.plan
-          python $GITHUB_WORKSPACE/.github/scripts/logs.py out.plan "${{ github.run_id }}${{ github.run_attempt }}" ${{ inputs.environment }}
+          python $GITHUB_WORKSPACE/.github/scripts/logs.py out.plan "${{ github.run_id }}${{ github.run_attempt }}" "terraform-plan-outputs-${{ inputs.environment }}"
       - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
         with:
           message: |
@@ -131,7 +131,11 @@ jobs:
         run: |
           terraform init
           terraform workspace select ${{ inputs.environment }}
-          terraform apply --auto-approve > /dev/null
+          terraform apply --auto-approve -no-color > apply_output.txt 2>&1
+      - name: Upload logs
+        if: failure()
+        run: |
+          python $GITHUB_WORKSPACE/.github/scripts/logs.py apply_output.txt "${{ github.run_id }}${{ github.run_attempt }}" "terraform-apply-outputs-${{ inputs.environment }}"
       - id: next-tag
         uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@main
         with:
