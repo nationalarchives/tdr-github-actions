@@ -133,6 +133,7 @@ jobs:
           terraform workspace select ${{ inputs.environment }}
           terraform apply --auto-approve -no-color > apply_output.txt 2>&1
       - name: Upload logs
+        id: apply-logs
         if: failure()
         run: |
           python $GITHUB_WORKSPACE/.github/scripts/logs.py apply_output.txt "${{ github.run_id }}${{ github.run_attempt }}" "terraform-apply-outputs-${{ inputs.environment }}"
@@ -151,7 +152,9 @@ jobs:
         if: failure()
         uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
         with:
-          message: ":warning: ${{ inputs.repo-name }} deploy failed for ${{ inputs.environment }}"
+          message: |
+            :warning: ${{ inputs.repo-name }} deploy failed for ${{ inputs.environment }}
+            :log: View the <${{ steps.apply-logs.outputs.log-url }}|apply logs> in the management account.
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Send success message
         uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
