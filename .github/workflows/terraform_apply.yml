@@ -136,6 +136,7 @@ jobs:
         id: apply-logs
         if: failure()
         run: |
+          pip install boto3
           python $GITHUB_WORKSPACE/.github/scripts/logs.py apply_output.txt "${{ github.run_id }}${{ github.run_attempt }}" "terraform-apply-outputs-${{ inputs.environment }}"
       - id: next-tag
         uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@main
