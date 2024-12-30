@@ -37,7 +37,12 @@ jobs:
                 -f title="Scala Steward Updates" \
                 -f base=$default_branch \
                 -f head=scala-steward-dependencies 2>&1)
-              echo "Response received for $repo pull request: $response"
+              number=$(jq -r '.number' response.json)
+              url=$(jq -r '.url' response.json)
+              echo "Pull request created for $repo: $url"
+              echo "Updating PR $number"
+              response2=$(gh api /repos/$repo/pulls/$number/update-branch 2>&1)
+              echo "Response received for $repo pull request: $response2"
             else
               if [[ $diff == 0 ]]; then
                 echo "There are no updates in $repo"
