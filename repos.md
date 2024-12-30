@@ -1,1 +1,1 @@
-- nationalarchives/tdr-auth-server:scala-steward-dependencies
+- nationalarchives/tdr-file-format:scala-steward-dependencies

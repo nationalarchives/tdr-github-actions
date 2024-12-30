@@ -41,7 +41,9 @@ jobs:
               url=$(echo "$response" | jq -r '.url')
               echo "Pull request created for $repo: $url"
               echo "Updating PR $number"
-              response2=$(gh api /repos/$repo/pulls/$number/update-branch 2>&1)
+              response2=$(gh api \
+                --method PUT \
+                /repos/$repo/pulls/$number/update-branch 2>&1)
               echo "Response received for $repo pull request: $response2"
             else
               if [[ $diff == 0 ]]; then
