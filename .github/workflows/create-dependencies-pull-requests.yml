@@ -15,14 +15,14 @@ jobs:
       - name: Read repositories from file
         id: read-repos
         run: |
-            repos_content=""
-            while IFS= read -r line; do
-            repo_name=$(echo "$line" | sed -e 's/^- //' -e 's/:scala-steward-dependencies//')
-            repos_content+="$repo_name "
-            done < repos.md
-            echo -e "::set-output name=repos::$repos_content"
+          repos_content=""
+          while IFS= read -r line; do
+          repo_name=$(echo "$line" | sed -e 's/^- //' -e 's/:scala-steward-dependencies//')
+          repos_content+="$repo_name "
+          done < repos.md
+          echo -e "::set-output name=repos::$repos_content"
         shell: bash
-        
+
       - name: Create Pull Request
         run: |
           for repo in ${{ steps.read-repos.outputs.repos }}; do
@@ -37,7 +37,14 @@ jobs:
                 -f title="Scala Steward Updates" \
                 -f base=$default_branch \
                 -f head=scala-steward-dependencies 2>&1)
-              echo "Response received for $repo pull request: $response"
+              number=$(echo "$response" | jq -r '.number')
+              url=$(echo "$response" | jq -r '.url')
+              echo "Pull request created for $repo: $url"
+              echo "Updating PR $number"
+              response2=$(gh api \
+                --method PUT \
+                /repos/$repo/pulls/$number/update-branch 2>&1)
+              echo "Response received for $repo pull request: $response2"
             else
               if [[ $diff == 0 ]]; then
                 echo "There are no updates in $repo"
