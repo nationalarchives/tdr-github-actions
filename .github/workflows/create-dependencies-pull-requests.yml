@@ -37,8 +37,8 @@ jobs:
                 -f title="Scala Steward Updates" \
                 -f base=$default_branch \
                 -f head=scala-steward-dependencies 2>&1)
-              number=$(jq -r '.number' response.json)
-              url=$(jq -r '.url' response.json)
+              number=$(echo "$response" | jq -r '.number')
+              url=$(echo "$response" | jq -r '.url')
               echo "Pull request created for $repo: $url"
               echo "Updating PR $number"
               response2=$(gh api /repos/$repo/pulls/$number/update-branch 2>&1)
