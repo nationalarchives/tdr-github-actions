@@ -41,9 +41,8 @@ jobs:
               url=$(echo "$response" | jq -r '.url')
               echo "Pull request created for $repo: $url"
               echo "Check PR Mergeability"
-              pr_data=$(gh api repos/$repo/pulls/$number 2>&1)
-              echo "pr data: $pr_data"
-              MERGEABLE=$(echo "$pr_data" | jq -r '.mergeable')
+              sleep 5 # wait for 5 seconds
+              MERGEABLE=$(gh api repos/$repo/pulls/$number --jq '.mergeable')
               echo "MERGEABLE - $MERGEABLE"
               if [[ "$MERGEABLE" == "false" ]]; then
                 echo "Merge conflict detected"
@@ -51,7 +50,7 @@ jobs:
                 echo "Updating PR $number"
                 update_response=$(gh api \
                   --method PUT \
-                  /repos/$repo/pulls/$number/update-branch 2>&1)
+                  /repos/$repo/pulls/$number/update-branch)
                 echo "Response received for $repo pull request: $update_response"
               fi
             else
