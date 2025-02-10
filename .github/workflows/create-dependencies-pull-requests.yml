@@ -42,7 +42,9 @@ jobs:
               echo "Pull request created for $repo: $url"
               echo "Check PR Mergeability"
               pr_data=$(gh api repos/$repo/pulls/$number 2>&1)
+              echo "pr data: $pr_data"
               MERGEABLE=$(echo "$pr_data" | jq -r '.mergeable')
+              echo "MERGEABLE - $MERGEABLE"
               if [[ "$MERGEABLE" == "false" ]]; then
                 echo "Merge conflict detected"
               else
