@@ -15,7 +15,7 @@
 - nationalarchives/tdr-e2e-tests:scala-steward-dependencies
 - nationalarchives/tdr-ecr-scan:scala-steward-dependencies
 - nationalarchives/tdr-export-status-update:scala-steward-dependencies
-- nationalarchives/tdr-external-events-handling:scala-steward-dependencies
+- nationalarchives/tdr-external-event-handling:scala-steward-dependencies
 - nationalarchives/tdr-file-format:scala-steward-dependencies
 - nationalarchives/tdr-generated-graphql:scala-steward-dependencies
 - nationalarchives/tdr-graphql-client:scala-steward-dependencies
