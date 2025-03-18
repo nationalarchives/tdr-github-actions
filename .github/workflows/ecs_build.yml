@@ -59,6 +59,13 @@ jobs:
         uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@main
         with:
           repo-name: ${{ inputs.repo-name }}
+      - name: Download Wiz CLI
+        run: |
+          curl -o wizcli https://wizcli.app.wiz.io/wizcli
+          chmod +x wizcli
+      - name: Authenticate to Wiz API
+        run: |
+          ./wizcli auth --id ${{ secrets.WIZ_CLIENT_ID }} --secret ${{ secrets.WIZ_CLIENT_SECRET }}
       - name: Run build-command
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
@@ -66,11 +73,23 @@ jobs:
         if: ${{ inputs.build-command }}
         run: |
           ${{ inputs.build-command }}
+      - name: Run wiz CLI IaC scan
+        run: ./wizcli iac scan --path . --name ${{ inputs.image-name }}-${{github.run_number}}
       - name: Build new image version
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         run: |
           docker build -t ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }} .
+      - name: Wiz Docker Scan
+        run: |
+          ./wizcli docker scan --image ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }}
+      - name: Push new image version to ECR
+        env:
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
+        run: |
           docker push ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }}
           git tag ${{ steps.next-tag.outputs.next-version }}
           git push origin ${{ steps.next-tag.outputs.next-version }}
+      - name: Wiz Docker Tag
+        run: |
+          ./wizcli docker tag --image ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }}
