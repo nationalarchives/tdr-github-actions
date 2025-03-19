@@ -23,6 +23,10 @@ on:
         required: true
       AKKA_TOKEN:
         required: false
+      WIZ_CLIENT_ID:
+        required: true
+      WIZ_CLIENT_SECRET:
+        required: true
     outputs:
       next-version:
         description: "The next version of the project"
