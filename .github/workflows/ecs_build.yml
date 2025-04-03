@@ -27,6 +27,8 @@ on:
         required: true
       WIZ_CLIENT_SECRET:
         required: true
+      WIZ_PROJECT_ID:
+        required: true
     outputs:
       next-version:
         description: "The next version of the project"
@@ -78,7 +80,7 @@ jobs:
         run: |
           ${{ inputs.build-command }}
       - name: Run wiz CLI IaC scan
-        run: ./wizcli iac scan --path . --name ${{ inputs.image-name }}-${{github.run_number}}
+        run: ./wizcli iac scan --path . --name ${{ inputs.image-name }}-${{github.run_number}} --project ${{ secrets.WIZ_PROJECT_ID}}
       - name: Build new image version
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
@@ -86,7 +88,7 @@ jobs:
           docker build -t ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }} .
       - name: Wiz Docker Scan
         run: |
-          ./wizcli docker scan --image ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }}
+          ./wizcli docker scan --image ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }} --project ${{ secrets.WIZ_PROJECT_ID }}
       - name: Push new image version to ECR
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
