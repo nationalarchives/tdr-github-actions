@@ -71,6 +71,7 @@ jobs:
         with:
           repo-name: ${{ inputs.repo-name }}
       - name: Download Wiz CLI
+        if: contains(inputs.build-command, 'docker')
         run: |
           curl -o wizcli https://wizcli.app.wiz.io/wizcli
           chmod +x wizcli
