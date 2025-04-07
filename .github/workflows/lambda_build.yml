@@ -32,6 +32,12 @@ on:
         required: true
       WORKFLOW_PAT:
         required: true
+      WIZ_CLIENT_ID:
+        required: false
+      WIZ_CLIENT_SECRET:
+        required: false
+      WIZ_PROJECT_ID:
+        required: false
     outputs:
       next-version:
         description: "The next version of the project"
@@ -64,11 +70,26 @@ jobs:
         uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@main
         with:
           repo-name: ${{ inputs.repo-name }}
-      - name: Build new image version
+      - name: Download Wiz CLI
+        if: contains(inputs.build-command, 'docker')
+        run: |
+          curl -o wizcli https://wizcli.app.wiz.io/wizcli
+          chmod +x wizcli
+      - name: Authenticate to Wiz API
+        run: |
+          ./wizcli auth --id ${{ secrets.WIZ_CLIENT_ID }} --secret ${{ secrets.WIZ_CLIENT_SECRET }}
+      - name: Run wiz CLI IaC scan
+        if: contains(inputs.build-command, 'docker')
+        run: ./wizcli iac scan --path . --name ${{ inputs.repo-name }}-${{ github.run_number }} --project ${{ secrets.WIZ_PROJECT_ID }}
+      - name: Run build command
+        run: ${{ inputs.build-command }}
+      - name: Wiz Docker Scan
+        if: contains(inputs.build-command, 'docker')
+        run: ./wizcli docker scan --image function --project ${{ secrets.WIZ_PROJECT_ID }}
+      - name: Copy artifact to S3 and create release
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         run: |
-          ${{ inputs.build-command }}
           aws s3 cp ${{ inputs.artifact-path }}/${{ inputs.artifact-name }}.${{ inputs.artifact-file-type }} s3://tdr-backend-code-mgmt/${{ inputs.lambda-name }}/${{ steps.next-tag.outputs.next-version }}/${{ inputs.artifact-name }}.${{ inputs.artifact-file-type }}
           git tag ${{ steps.next-tag.outputs.next-version }}
           git push origin ${{ steps.next-tag.outputs.next-version }}
