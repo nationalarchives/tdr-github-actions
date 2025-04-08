@@ -76,6 +76,7 @@ jobs:
           curl -o wizcli https://wizcli.app.wiz.io/wizcli
           chmod +x wizcli
       - name: Authenticate to Wiz API
+        if: contains(inputs.build-command, 'docker')
         run: |
           ./wizcli auth --id ${{ secrets.WIZ_CLIENT_ID }} --secret ${{ secrets.WIZ_CLIENT_SECRET }}
       - name: Run wiz CLI IaC scan
