@@ -10,7 +10,7 @@ jobs:
     name: Create PR from `scala-steward-dependencies` to `main/master` for multiple repositories
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Read repositories from file
         id: read-repos
