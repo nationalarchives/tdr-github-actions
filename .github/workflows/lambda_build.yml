@@ -83,6 +83,8 @@ jobs:
         if: contains(inputs.build-command, 'docker')
         run: ./wizcli iac scan --path . --name ${{ inputs.repo-name }}-${{ github.run_number }} --project ${{ secrets.WIZ_PROJECT_ID }}
       - name: Run build command
+        env:
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         run: ${{ inputs.build-command }}
       - name: Wiz Docker Scan
         if: contains(inputs.build-command, 'docker')
