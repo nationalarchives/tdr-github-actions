@@ -30,7 +30,7 @@ jobs:
         with:
           message: ":warning: Secrets found in repository ${{ inputs.repo-name }}"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
-      - uses: coursier/cache-action@142d2738bd29f0eb9d44610828acb3a19809feab
+      - uses: coursier/cache-action@4e2615869d13561d626ed48655e1a39e5b192b3c
       - uses: sbt/setup-sbt@26ab4b0fa1c47fa62fc1f6e51823a658fb6c760c
       - uses: actions/setup-java@f4f1212c880fdec8162ea9a6493f4495191887b4
         with:
