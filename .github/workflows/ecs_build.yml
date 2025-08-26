@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - uses: coursier/cache-action@4e2615869d13561d626ed48655e1a39e5b192b3c
       - uses: sbt/setup-sbt@234370af1319038bf8dc432f8a7e4b83078a1781
-      - uses: actions/setup-java@67aec007b3fcabe15ca665bfccc1e255dd52e30d
+      - uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165
         with:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
