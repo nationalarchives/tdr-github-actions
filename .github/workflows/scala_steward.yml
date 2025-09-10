@@ -1,5 +1,10 @@
 on:
   workflow_dispatch:
+    inputs:
+      single_repo:
+        description: 'Single repository to update'
+        required: false
+        type: string
   schedule:
     - cron: '15 8 */3 * *'
 
@@ -19,6 +24,10 @@ jobs:
           git_commit_gpgsign: true
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      - name: Create temporary repos file for single repo
+        if: ${{ github.event.inputs.single_repo }}
+        run: |
+          echo "- nationalarchives/${{ github.event.inputs.single_repo }}:scala-steward-dependencies" > temp-repos.md
       - name: Launch Scala Steward
         uses: scala-steward-org/scala-steward-action@961c41c9fd3dc8a0f1f8dd59d60d071e17348ae8
         with:
@@ -27,4 +36,4 @@ jobs:
           signing-key: ${{ secrets.GPG_KEY_ID }}
           author-email: ${{ steps.import_gpg.outputs.email }}
           author-name: ${{ steps.import_gpg.outputs.name }}
-          repos-file: 'repos.md'
+          repos-file: ${{ github.event.inputs.single_repo && 'temp-repos.md' || 'repos.md' }}
