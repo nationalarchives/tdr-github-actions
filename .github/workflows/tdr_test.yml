@@ -23,7 +23,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
       - uses: nationalarchives/tdr-github-actions/.github/actions/run-git-secrets@main
       - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
         if: failure()
@@ -31,8 +31,8 @@ jobs:
           message: ":warning: Secrets found in repository ${{ inputs.repo-name }}"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - uses: coursier/cache-action@4e2615869d13561d626ed48655e1a39e5b192b3c
-      - uses: sbt/setup-sbt@234370af1319038bf8dc432f8a7e4b83078a1781
-      - uses: actions/setup-java@67aec007b3fcabe15ca665bfccc1e255dd52e30d
+      - uses: sbt/setup-sbt@17575ea4e18dd928fe5968dbe32294b97923d65b
+      - uses: actions/setup-java@a7ab372554b6eb1a8eb25e7d9aec1cc9f3ea1a76
         with:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
