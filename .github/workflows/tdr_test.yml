@@ -24,6 +24,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - uses: scalacenter/sbt-dependency-submission@64084844d2b0a9b6c3765f33acde2fbe3f5ae7d3
+      - uses: actions/dependency-review-action@40c09b7dc99638e5ddb0bfd91c1673effc064d8a
+        with:
+          fail-on-severity: critical
       - uses: nationalarchives/tdr-github-actions/.github/actions/run-git-secrets@main
       - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
         if: failure()
