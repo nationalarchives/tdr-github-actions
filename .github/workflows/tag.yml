@@ -1,0 +1,21 @@
+name: Tag and release TDR Github Actions
+on:
+  push:
+    branches:
+      - main
+jobs:
+  tag-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - id: next-tag
+        uses: ./.github/actions/get-next-version
+        with:
+          repo-name: tdr-github-actions
+      - name: Create tag and release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git tag ${{ steps.next-tag.outputs.next-version }}
+          git push origin ${{ steps.next-tag.outputs.next-version }}
+          gh release create ${{ steps.next-tag.outputs.next-version }}
