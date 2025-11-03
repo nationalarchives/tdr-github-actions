@@ -26,11 +26,11 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
-      - uses: sbt/setup-sbt@17575ea4e18dd928fe5968dbe32294b97923d65b
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: sbt/setup-sbt@17575ea4e18dd928fe5968dbe32294b97923d65b # v1.1.13
       - name: Import GPG key
         id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec
+        uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec # v6.3.0
         with:
           git_user_signingkey: true
           git_commit_gpgsign: true
@@ -50,7 +50,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
       - name: Send success message
-        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
+        uses: ./.github/actions/slack-send
         with:
           message: ":white_check_mark: ${{ inputs.library-name }} has been published"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}

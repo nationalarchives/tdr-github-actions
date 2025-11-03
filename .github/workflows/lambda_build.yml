@@ -52,22 +52,22 @@ jobs:
     outputs:
       next-version: ${{ steps.next-tag.outputs.next-version }}
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
-      - uses: coursier/cache-action@4e2615869d13561d626ed48655e1a39e5b192b3c
-      - uses: sbt/setup-sbt@17575ea4e18dd928fe5968dbe32294b97923d65b
-      - uses: actions/setup-java@a7ab372554b6eb1a8eb25e7d9aec1cc9f3ea1a76
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: coursier/cache-action@4e2615869d13561d626ed48655e1a39e5b192b3c # v6.4.9
+      - uses: sbt/setup-sbt@17575ea4e18dd928fe5968dbe32294b97923d65b # v1.1.13
+      - uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
         with:
             java-version: ${{ inputs.java-version }}
             distribution: 'temurin'
       - name: Configure AWS credentials from management account
-        uses: aws-actions/configure-aws-credentials@a03048d87541d1d9fcf2ecf528a4a65ba9bd7838
+        uses: aws-actions/configure-aws-credentials@a03048d87541d1d9fcf2ecf528a4a65ba9bd7838 # v5.0.0
         with:
           role-to-assume: arn:aws:iam::${{ secrets.MANAGEMENT_ACCOUNT }}:role/TDRGithubActionsRoleMgmt
           aws-region: eu-west-2
           role-session-name: GitHubActionsRole
       - run: pip install requests
       - id: next-tag
-        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@main
+        uses: ./.github/actions/get-next-version
         with:
           repo-name: ${{ inputs.repo-name }}
       - name: Download Wiz CLI

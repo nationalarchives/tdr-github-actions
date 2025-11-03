@@ -39,7 +39,7 @@ jobs:
     environment: ${{ inputs.environment }}
     steps:
       - name: Checkout
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: refs/tags/${{ inputs.to-deploy }}
       - id: role-name
@@ -49,7 +49,7 @@ jobs:
             print(f"role-name=TDRGithubActionsDeployLambda{'${{ inputs.environment }}'.title()}", file=fh)
         shell: python
       - name: Configure AWS credentials for Lambda
-        uses: aws-actions/configure-aws-credentials@a03048d87541d1d9fcf2ecf528a4a65ba9bd7838
+        uses: aws-actions/configure-aws-credentials@a03048d87541d1d9fcf2ecf528a4a65ba9bd7838 # v5.0.0
         with:
           role-to-assume: arn:aws:iam::${{ secrets.ACCOUNT_NUMBER }}:role/${{ steps.role-name.outputs.role-name }}
           aws-region: eu-west-2
@@ -80,7 +80,7 @@ jobs:
           fi
            aws lambda wait function-updated --function-name ${{ inputs.project }}-${{ inputs.lambda-name }}-${{ inputs.environment }} > /dev/null
       - name: Send success message
-        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
+        uses: ./.github/actions/slack-send
         with:
           message: ":white_check_mark: Service ${{ inputs.lambda-name }} updated to version ${{ inputs.to-deploy }} in ${{ inputs.environment }}"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
@@ -89,14 +89,14 @@ jobs:
           git branch -f release-${{ inputs.environment }} HEAD
           git push -f origin release-${{ inputs.environment }}
       - name: Send failure message
-        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
+        uses: ./.github/actions/slack-send
         if: failure()
         with:
           message: ":warning: Build failed for ${{ inputs.lambda-name }}"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Run E2E tests
         if: inputs.environment != 'prod' && inputs.environment != 'mgmt'
-        uses: octokit/request-action@dad4362715b7fb2ddedf9772c8670824af564f0d
+        uses: octokit/request-action@dad4362715b7fb2ddedf9772c8670824af564f0d # v2.4.0
         with:
           route: POST /repos/nationalarchives/tdr-e2e-tests/actions/workflows/ci.yml/dispatches
           ref: master
