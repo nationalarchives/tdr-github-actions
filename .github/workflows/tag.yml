@@ -1,4 +1,4 @@
-name: tag.yml
+name: Tag and release TDR Github Actions
 on:
   workflow_dispatch:
   push:
