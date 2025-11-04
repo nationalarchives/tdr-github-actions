@@ -8,6 +8,13 @@ updates:
       prefix: "chore"
       include: "scope"
     groups:
-      github-actions:
+      # External actions - will get SHA updates
+      external-actions:
         patterns:
           - "*"
+        exclude-patterns:
+          - "nationalarchives/tdr-github-actions*"
+      # Self-referencing actions - separate PR
+      self-actions:
+        patterns:
+          - "nationalarchives/tdr-github-actions*"
