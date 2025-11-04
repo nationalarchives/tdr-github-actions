@@ -54,7 +54,7 @@ jobs:
           git branch -f release-${{ inputs.tag }} HEAD
           git push -f origin release-${{ inputs.tag }}
       - name: Send failure message
-        uses: ./.github/actions/slack-send
+        uses: nationalarchives/tdr-github-actions/actions/slack-send@288052e0133a47d2f12924edc2bc5553c1b2d73a # v0.0.5
         if: failure()
         with:
           message: ":warning: Failed to tag ecr image ${{ inputs.image-name }}:${{ inputs.to-deploy }} with tag ${{ inputs.tag }}"
