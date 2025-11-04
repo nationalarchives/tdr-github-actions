@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - id: next-tag
-        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@288052e0133a47d2f12924edc2bc5553c1b2d73a # v0.0.5
+        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@1c56dd1e838340ab53c7dc55dbbb974a062a6ae9 # v0.0.6
         with:
           repo-name: tdr-github-actions
       - name: Create tag and release

@@ -12,7 +12,7 @@ jobs:
       - run: |
           echo "111111111111" > tmp
           git add tmp
-      - uses: nationalarchives/tdr-github-actions/.github/actions/run-git-secrets@288052e0133a47d2f12924edc2bc5553c1b2d73a # v0.0.5
+      - uses: nationalarchives/tdr-github-actions/.github/actions/run-git-secrets@1c56dd1e838340ab53c7dc55dbbb974a062a6ae9 # v0.0.6
         id: run-git-secrets
         continue-on-error: true
       - run: exit 1
