@@ -80,7 +80,7 @@ jobs:
           fi
            aws lambda wait function-updated --function-name ${{ inputs.project }}-${{ inputs.lambda-name }}-${{ inputs.environment }} > /dev/null
       - name: Send success message
-        uses: ./.github/actions/slack-send
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@288052e0133a47d2f12924edc2bc5553c1b2d73a # v0.0.5
         with:
           message: ":white_check_mark: Service ${{ inputs.lambda-name }} updated to version ${{ inputs.to-deploy }} in ${{ inputs.environment }}"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
@@ -89,7 +89,7 @@ jobs:
           git branch -f release-${{ inputs.environment }} HEAD
           git push -f origin release-${{ inputs.environment }}
       - name: Send failure message
-        uses: ./.github/actions/slack-send
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@288052e0133a47d2f12924edc2bc5553c1b2d73a # v0.0.5
         if: failure()
         with:
           message: ":warning: Build failed for ${{ inputs.lambda-name }}"
