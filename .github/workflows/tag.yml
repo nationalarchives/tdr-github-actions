@@ -6,10 +6,14 @@ on:
 jobs:
   tag-and-release:
     runs-on: ubuntu-latest
+    # Skip if the commit is from dependabot updating self-references
+    if: |
+      !contains(github.event.head_commit.message, 'nationalarchives/tdr-github-actions') ||
+      !contains(github.event.head_commit.author.name, 'dependabot')
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - id: next-tag
-        uses: ./.github/actions/get-next-version
+        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@fa53af529582c850a4575b9af2f91e441166c68d # v0.0.7
         with:
           repo-name: tdr-github-actions
       - name: Create tag and release
