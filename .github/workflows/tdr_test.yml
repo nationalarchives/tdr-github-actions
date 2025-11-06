@@ -30,14 +30,14 @@ jobs:
         with:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
-      - uses: scalacenter/sbt-dependency-submission@64084844d2b0a9b6c3765f33acde2fbe3f5ae7d3
+      - uses: scalacenter/sbt-dependency-submission@64084844d2b0a9b6c3765f33acde2fbe3f5ae7d3 # v3.1.0
       - name: dependency-review
-        uses: actions/dependency-review-action@40c09b7dc99638e5ddb0bfd91c1673effc064d8a
+        uses: actions/dependency-review-action@40c09b7dc99638e5ddb0bfd91c1673effc064d8a # v4.8.1
         if: github.event_name == 'pull_request'
         with:
           fail-on-severity: critical
       - name: git-secrets
-        uses: nationalarchives/tdr-github-actions/.github/actions/run-git-secrets@main
+        uses: nationalarchives/tdr-github-actions/.github/actions/run-git-secrets@fa53af529582c850a4575b9af2f91e441166c68d # v0.0.7
       - name: determine-failure-message
         if: failure()
         id: failure-msg
@@ -49,7 +49,7 @@ jobs:
           else
             echo "message=:warning: Build failed in repository ${{ inputs.repo-name }}" >> $GITHUB_OUTPUT
           fi
-      - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@main
+      - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@fa53af529582c850a4575b9af2f91e441166c68d # v0.0.7
         if: failure()
         with:
           message: ${{ steps.failure-msg.outputs.message }}
