@@ -31,6 +31,7 @@ jobs:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
       - uses: scalacenter/sbt-dependency-submission@64084844d2b0a9b6c3765f33acde2fbe3f5ae7d3 # v3.1.0
+        if: contains(inputs.test-command, 'sbt')
       - name: dependency-review
         uses: actions/dependency-review-action@40c09b7dc99638e5ddb0bfd91c1673effc064d8a # v4.8.1
         if: github.event_name == 'pull_request'
