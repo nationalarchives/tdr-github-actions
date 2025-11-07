@@ -9,7 +9,7 @@ on:
         description: "Version of Java required to build project"
         required: false
         type: string
-        default: '11'
+        default: '17'
       test-command:
         required: true
         type: string
