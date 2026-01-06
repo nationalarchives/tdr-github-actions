@@ -65,9 +65,6 @@ Version of java to use to build if applicable. Defaults to version 11.
 #### `WORKFLOW_PAT`
 **Required** The GitHub personal access token. Used to authenticate when pushing tags.
 
-#### `AKKA_TOKEN`
-Akka commercial licence token if needed
-
 #### Example usage
 ```yaml
 jobs:
