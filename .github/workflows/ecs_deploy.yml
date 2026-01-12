@@ -66,7 +66,7 @@ jobs:
       - name: Deploy to ECS
         run: aws ecs update-service --service ${{ inputs.service }}_service_${{ inputs.environment }} --cluster ${{ inputs.service }}_${{ inputs.environment }} --force-new-deployment > /dev/null
       - name: Send success message
-        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@fa53af529582c850a4575b9af2f91e441166c68d # v0.0.7
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@f52edf22c81f568202369a3b31da0277541b0507 # v0.0.11
         with:
           message: ":white_check_mark: Service ${{ inputs.image-name }} updated to version ${{ inputs.to-deploy }} in ${{ inputs.environment }}"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
@@ -75,7 +75,7 @@ jobs:
           git branch -f release-${{ inputs.environment }} HEAD
           git push -f origin release-${{ inputs.environment }}
       - name: Send failure message
-        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@fa53af529582c850a4575b9af2f91e441166c68d # v0.0.7
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@f52edf22c81f568202369a3b31da0277541b0507 # v0.0.11
         if: failure()
         with:
           message: ":warning: Build failed for ${{ inputs.image-name }}"
