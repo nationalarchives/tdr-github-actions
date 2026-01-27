@@ -82,7 +82,7 @@ jobs:
       - name: Get prior release commit
         id: prior-release-commit
         run: |
-          PRIOR_RELEASE_COMMIT=$(git rev-parse origin/release-${{ inputs.environment }} 2>/dev/null || echo "")
+          PRIOR_RELEASE_COMMIT=$(git ls-remote origin release-${{ inputs.environment }} | cut -f1 2>/dev/null || echo "")
           echo "prior-release-commit=$PRIOR_RELEASE_COMMIT" >> $GITHUB_OUTPUT
       - name: Send success message
         uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@fa53af529582c850a4575b9af2f91e441166c68d # v0.0.7
