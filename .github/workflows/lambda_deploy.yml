@@ -87,7 +87,7 @@ jobs:
       - name: Send success message
         uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@fa53af529582c850a4575b9af2f91e441166c68d # v0.0.7
         with:
-          message: ":white_check_mark: Service ${{ inputs.lambda-name }} updated to version ${{ inputs.to-deploy }} in ${{ inputs.environment }} (<https://github.com/${{ github.repository }}/compare/${{ steps.prior-release-commit.outputs.prior-release-commit }}...${{ github.sha }}|See changes>)"
+          message: ":white_check_mark: Lambda ${{ inputs.lambda-name }} updated to version ${{ inputs.to-deploy }} in ${{ inputs.environment }} (<https://github.com/${{ github.repository }}/compare/${{ steps.prior-release-commit.outputs.prior-release-commit }}...${{ github.sha }}|See changes>)"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Update release branch
         run: |
