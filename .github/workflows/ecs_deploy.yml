@@ -65,15 +65,17 @@ jobs:
           role-session-name: ECRLogin
       - name: Deploy to ECS
         run: aws ecs update-service --service ${{ inputs.service }}_service_${{ inputs.environment }} --cluster ${{ inputs.service }}_${{ inputs.environment }} --force-new-deployment > /dev/null
-      - name: Get prior release commit
-        id: prior-release-commit
+      - name: Get current and prior release commits
+        id: release-commits
         run: |
+          CURRENT_COMMIT=$(git rev-parse HEAD)
           PRIOR_RELEASE_COMMIT=$(git ls-remote origin release-${{ inputs.environment }} | cut -f1 2>/dev/null || echo "")
+          echo "current-commit=$CURRENT_COMMIT" >> $GITHUB_OUTPUT
           echo "prior-release-commit=$PRIOR_RELEASE_COMMIT" >> $GITHUB_OUTPUT
       - name: Send success message
         uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@fa53af529582c850a4575b9af2f91e441166c68d # v0.0.7
         with:
-          message: ":white_check_mark: Service ${{ inputs.image-name }} updated to version ${{ inputs.to-deploy }} in ${{ inputs.environment }} (<https://github.com/${{ github.repository }}/compare/${{ steps.prior-release-commit.outputs.prior-release-commit }}...${{ github.sha }}|See changes>)"
+          message: ":white_check_mark: Service ${{ inputs.lambda-name }} updated to version ${{ inputs.to-deploy }} in ${{ inputs.environment }} (<https://github.com/${{ github.repository }}/compare/${{ steps.release-commits.outputs.prior-release-commit }}...${{ steps.release-commits.outputs.current-commit }}|See changes>)"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Update release branch
         run: |
