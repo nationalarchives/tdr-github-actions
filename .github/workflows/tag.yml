@@ -11,7 +11,7 @@ jobs:
       !contains(github.event.head_commit.message, 'nationalarchives/tdr-github-actions') ||
       !contains(github.event.head_commit.author.name, 'dependabot')
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: next-tag
         uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@f52edf22c81f568202369a3b31da0277541b0507 # v0.0.11
         with:
