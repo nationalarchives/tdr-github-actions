@@ -90,7 +90,7 @@ jobs:
           terraform plan -no-color -out=out > /dev/null
           terraform show -no-color out > out.plan
           python $GITHUB_WORKSPACE/.github/scripts/logs.py out.plan "${{ github.run_id }}${{ github.run_attempt }}" "terraform-plan-outputs-${{ inputs.environment }}"
-      - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@f52edf22c81f568202369a3b31da0277541b0507 # v0.0.11
+      - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
         with:
           message: |
             :book: Terraform plan ready for repository ${{ inputs.repo-name }} environment ${{ inputs.environment }}
@@ -139,7 +139,7 @@ jobs:
           pip install boto3
           python $GITHUB_WORKSPACE/.github/scripts/logs.py apply_output.txt "${{ github.run_id }}${{ github.run_attempt }}" "terraform-apply-outputs-${{ inputs.environment }}"
       - id: next-tag
-        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@f52edf22c81f568202369a3b31da0277541b0507 # v0.0.11
+        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
         with:
           repo-name: ${{ inputs.repo-name }}
       - name: Run git tag
@@ -151,14 +151,14 @@ jobs:
           git push -f origin release-${{ inputs.environment }}
       - name: Send failure message
         if: failure()
-        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@f52edf22c81f568202369a3b31da0277541b0507 # v0.0.11
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
         with:
           message: |
             :warning: ${{ inputs.repo-name }} deploy failed for ${{ inputs.environment }}
             :log: View the <${{ steps.apply-logs.outputs.log-url }}|apply logs> in the management account.
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Send success message
-        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@f52edf22c81f568202369a3b31da0277541b0507 # v0.0.11
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
         with:
           message: ":white_check_mark: ${{ inputs.repo-name }} deploy successful for ${{ inputs.environment }}"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
