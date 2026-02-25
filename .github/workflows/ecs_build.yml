@@ -38,6 +38,9 @@ permissions:
 jobs:
   pre-deploy:
     runs-on: ubuntu-latest
+    env:
+      WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
+      WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
     outputs:
       next-version: ${{ steps.next-tag.outputs.next-version }}
     steps:
@@ -74,7 +77,7 @@ jobs:
         run: |
           ${{ inputs.build-command }}
       - name: Run wiz CLI IaC scan
-        run: ./wizcli scan dir . --name ${{ inputs.image-name }}-${{ github.run_number }} --project ${{ secrets.WIZ_PROJECT_ID }} --id ${{ secrets.WIZ_CLIENT_ID }} --secret ${{ secrets.WIZ_CLIENT_SECRET }}
+        run: ./wizcli scan dir . --name ${{ inputs.image-name }}-${{ github.run_number }} --project ${{ secrets.WIZ_PROJECT_ID }}
       - name: Build new image version
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
@@ -82,7 +85,7 @@ jobs:
           docker buildx build --output=type=docker --provenance=false --sbom=false -t ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }} .
       - name: Wiz Docker Scan
         run: |
-          ./wizcli scan container-image ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }} --project ${{ secrets.WIZ_PROJECT_ID }} --id ${{ secrets.WIZ_CLIENT_ID }} --secret ${{ secrets.WIZ_CLIENT_SECRET }}
+          ./wizcli scan container-image ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }} --project ${{ secrets.WIZ_PROJECT_ID }}
       - name: Push new image version to ECR
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
@@ -92,4 +95,4 @@ jobs:
           git push origin ${{ steps.next-tag.outputs.next-version }}
       - name: Wiz Docker Tag
         run: |
-          ./wizcli tag ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }} --id ${{ secrets.WIZ_CLIENT_ID }} --secret ${{ secrets.WIZ_CLIENT_SECRET }}
+          ./wizcli tag ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }}
