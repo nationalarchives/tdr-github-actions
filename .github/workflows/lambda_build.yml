@@ -92,7 +92,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         run: ${{ inputs.build-command }}
-      - name: Wiz Docker Scan
+      - name: Wiz image tag
         if: contains(inputs.build-command, 'docker')
         run: ./wizcli scan container-image function --project ${{ secrets.WIZ_PROJECT_ID }}
       - name: Copy artifact to S3 and create release
