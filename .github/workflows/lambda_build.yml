@@ -76,8 +76,15 @@ jobs:
       - name: Download Wiz CLI
         if: contains(inputs.build-command, 'docker')
         run: |
-          curl -o wizcli https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64
+          curl -Lo wizcli https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64
+          curl -Lo /tmp/wizcli-sha256 https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64-sha256
+          curl -Lo /tmp/wizcli-sha256.sig https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64-sha256.sig
           chmod +x wizcli
+      - name: Verify Wiz CLI signature
+        if: contains(inputs.build-command, 'docker')
+        run: |
+          gpg --verify /tmp/wizcli-sha256.sig /tmp/wizcli-sha256
+          echo "$(cat /tmp/wizcli-sha256) wizcli" | sha256sum --check
       - name: Run wiz CLI IaC scan
         if: contains(inputs.build-command, 'docker')
         run: ./wizcli scan dir . --name ${{ inputs.repo-name }}-${{ github.run_number }} --project ${{ secrets.WIZ_PROJECT_ID }}
