@@ -85,7 +85,7 @@ jobs:
         run: |
           gpg --verify /tmp/wizcli-sha256.sig /tmp/wizcli-sha256
           echo "$(cat /tmp/wizcli-sha256) wizcli" | sha256sum --check
-      - name: Run wiz CLI IaC scan
+      - name: Scan working directory with Wiz
         if: contains(inputs.build-command, 'docker')
         run: ./wizcli scan dir . --name ${{ inputs.repo-name }}-${{ github.run_number }} --project ${{ secrets.WIZ_PROJECT_ID }}
       - name: Run build command
