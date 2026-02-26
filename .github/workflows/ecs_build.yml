@@ -38,6 +38,9 @@ permissions:
 jobs:
   pre-deploy:
     runs-on: ubuntu-latest
+    env:
+      WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
+      WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
     outputs:
       next-version: ${{ steps.next-tag.outputs.next-version }}
     steps:
@@ -65,27 +68,32 @@ jobs:
           repo-name: ${{ inputs.repo-name }}
       - name: Download Wiz CLI
         run: |
-          curl -o wizcli https://wizcli.app.wiz.io/wizcli
+          curl -Lo wizcli https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64
+          curl -Lo /tmp/wizcli-sha256 https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64-sha256
+          curl -Lo /tmp/wizcli-sha256.sig https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64-sha256.sig
           chmod +x wizcli
-      - name: Authenticate to Wiz API
+      - name: Verify Wiz CLI signature
         run: |
-          ./wizcli auth --id ${{ secrets.WIZ_CLIENT_ID }} --secret ${{ secrets.WIZ_CLIENT_SECRET }}
+          curl -Lo public_key.asc https://downloads.wiz.io/wizcli/public_key.asc
+          gpg --import public_key.asc
+          gpg --verify /tmp/wizcli-sha256.sig /tmp/wizcli-sha256
+          echo "$(cat /tmp/wizcli-sha256) wizcli" | sha256sum --check
       - name: Run build-command
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         if: ${{ inputs.build-command }}
         run: |
           ${{ inputs.build-command }}
-      - name: Run wiz CLI IaC scan
-        run: ./wizcli iac scan --path . --name ${{ inputs.image-name }}-${{github.run_number}} --project ${{ secrets.WIZ_PROJECT_ID}}
+      - name: Scan working directory with Wiz
+        run: ./wizcli scan dir . --name ${{ inputs.image-name }}-${{ github.run_number }} --project ${{ secrets.WIZ_PROJECT_ID }}
       - name: Build new image version
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         run: |
           docker buildx build --output=type=docker --provenance=false --sbom=false -t ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }} .
-      - name: Wiz Docker Scan
+      - name: Wiz container image scan
         run: |
-          ./wizcli docker scan --image ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }} --project ${{ secrets.WIZ_PROJECT_ID }}
+          ./wizcli scan container-image ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }} --project ${{ secrets.WIZ_PROJECT_ID }}
       - name: Push new image version to ECR
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
@@ -95,4 +103,4 @@ jobs:
           git push origin ${{ steps.next-tag.outputs.next-version }}
       - name: Wiz Docker Tag
         run: |
-          ./wizcli docker tag --image ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }}
+          ./wizcli tag ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }}
