@@ -83,6 +83,8 @@ jobs:
       - name: Verify Wiz CLI signature
         if: contains(inputs.build-command, 'docker')
         run: |
+          curl -Lo public_key.asc https://downloads.wiz.io/wizcli/public_key.asc
+          gpg --import public_key.asc
           gpg --verify /tmp/wizcli-sha256.sig /tmp/wizcli-sha256
           echo "$(cat /tmp/wizcli-sha256) wizcli" | sha256sum --check
       - name: Scan working directory with Wiz
