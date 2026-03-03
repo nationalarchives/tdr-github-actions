@@ -46,17 +46,24 @@ jobs:
         run: |
           import os
           with open(os.environ['GITHUB_OUTPUT'], 'a') as fh: 
-            print(f"role-name=TDRGitHubECSUpdateRole{'${{ inputs.environment }}'.title()}", file=fh)
+            print(f"role-name=TDRGitHubECSUpdateRole{os.environ['DEPLOY_ENVIRONMENT'].title()}", file=fh)
         shell: python
+        env:
+          DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
       - name: Login to ECR
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com
       - name: Tag image
         run: |
-          docker pull ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ inputs.to-deploy }}
-          docker tag ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ inputs.to-deploy }} ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ inputs.environment }}
-          docker push ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ inputs.environment }}
+          docker pull "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${TO_DEPLOY}"
+          docker tag "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${TO_DEPLOY}" "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${DEPLOY_ENVIRONMENT}"
+          docker push "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${DEPLOY_ENVIRONMENT}"
+        env:
+          MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
+          IMAGE_NAME: ${{ inputs.image-name }}
+          TO_DEPLOY: ${{ inputs.to-deploy }}
+          DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
       - name: Configure AWS credentials for ECS
         uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
@@ -64,14 +71,19 @@ jobs:
           aws-region: eu-west-2
           role-session-name: ECRLogin
       - name: Deploy to ECS
-        run: aws ecs update-service --service ${{ inputs.service }}_service_${{ inputs.environment }} --cluster ${{ inputs.service }}_${{ inputs.environment }} --force-new-deployment > /dev/null
+        run: aws ecs update-service --service "${SERVICE}_service_${DEPLOY_ENVIRONMENT}" --cluster "${SERVICE}_${DEPLOY_ENVIRONMENT}" --force-new-deployment > /dev/null
+        env:
+          SERVICE: ${{ inputs.service }}
+          DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
       - name: Get current and prior release commits
         id: release-commits
         run: |
           CURRENT_COMMIT=$(git rev-parse HEAD)
-          PRIOR_RELEASE_COMMIT=$(git ls-remote origin release-${{ inputs.environment }} | cut -f1 2>/dev/null || echo "")
+          PRIOR_RELEASE_COMMIT=$(git ls-remote origin "release-${DEPLOY_ENVIRONMENT}" | cut -f1 2>/dev/null || echo "")
           echo "current-commit=$CURRENT_COMMIT" >> $GITHUB_OUTPUT
           echo "prior-release-commit=$PRIOR_RELEASE_COMMIT" >> $GITHUB_OUTPUT
+        env:
+          DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
       - name: Send success message
         uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
         with:
@@ -79,8 +91,10 @@ jobs:
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Update release branch
         run: |
-          git branch -f release-${{ inputs.environment }} HEAD
-          git push -f origin release-${{ inputs.environment }}
+          git branch -f "release-${DEPLOY_ENVIRONMENT}" HEAD
+          git push -f origin "release-${DEPLOY_ENVIRONMENT}"
+        env:
+          DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
       - name: Send failure message
         uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
         if: failure()
