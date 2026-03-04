@@ -38,21 +38,30 @@ jobs:
         run: |
           import os
           with open(os.environ['GITHUB_OUTPUT'], 'a') as fh: 
-            print(f"role-name=TDRGitHubECSUpdateRole{'${{ inputs.tag }}'.title()}", file=fh)
+            print(f"role-name=TDRGitHubECSUpdateRole{os.environ['TAG'].title()}", file=fh)
         shell: python
+        env:
+          TAG: ${{ inputs.tag }}
       - name: Login to ECR
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com
       - name: Tag image
         run: |
-          docker pull ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ inputs.to-deploy }}
-          docker tag ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ inputs.to-deploy }} ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ inputs.tag }}
-          docker push ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ inputs.tag }}
+          docker pull "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${TO_DEPLOY}"
+          docker tag "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${TO_DEPLOY}" "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${TAG}"
+          docker push "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${TAG}"
+        env:
+          MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
+          IMAGE_NAME: ${{ inputs.image-name }}
+          TO_DEPLOY: ${{ inputs.to-deploy }}
+          TAG: ${{ inputs.tag }}
       - name: Update release branch
         run: |
-          git branch -f release-${{ inputs.tag }} HEAD
-          git push -f origin release-${{ inputs.tag }}
+          git branch -f "release-${TAG}" HEAD
+          git push -f origin "release-${TAG}"
+        env:
+          TAG: ${{ inputs.tag }}
       - name: Send failure message
         uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
         if: failure()

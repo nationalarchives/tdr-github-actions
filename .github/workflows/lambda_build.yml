@@ -89,19 +89,30 @@ jobs:
           echo "$(cat /tmp/wizcli-sha256) wizcli" | sha256sum --check
       - name: Scan working directory with Wiz
         if: contains(inputs.build-command, 'docker')
-        run: ./wizcli scan dir . --name ${{ inputs.repo-name }}-${{ github.run_number }} --project ${{ secrets.WIZ_PROJECT_ID }}
+        run: ./wizcli scan dir . --name "${REPO_NAME}-${GITHUB_RUN_NUMBER}" --project "${WIZ_PROJECT_ID}"
+        env:
+          REPO_NAME: ${{ inputs.repo-name }}
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+          WIZ_PROJECT_ID: ${{ secrets.WIZ_PROJECT_ID }}
       - name: Run build command
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         run: ${{ inputs.build-command }}
       - name: Wiz image tag
         if: contains(inputs.build-command, 'docker')
-        run: ./wizcli scan container-image function --project ${{ secrets.WIZ_PROJECT_ID }}
+        run: ./wizcli scan container-image function --project "${WIZ_PROJECT_ID}"
+        env:
+          WIZ_PROJECT_ID: ${{ secrets.WIZ_PROJECT_ID }}
       - name: Copy artifact to S3 and create release
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
+          ARTIFACT_PATH: ${{ inputs.artifact-path }}
+          ARTIFACT_NAME: ${{ inputs.artifact-name }}
+          ARTIFACT_FILE_TYPE: ${{ inputs.artifact-file-type }}
+          LAMBDA_NAME: ${{ inputs.lambda-name }}
+          NEXT_VERSION: ${{ steps.next-tag.outputs.next-version }}
         run: |
-          aws s3 cp ${{ inputs.artifact-path }}/${{ inputs.artifact-name }}.${{ inputs.artifact-file-type }} s3://tdr-backend-code-mgmt/${{ inputs.lambda-name }}/${{ steps.next-tag.outputs.next-version }}/${{ inputs.artifact-name }}.${{ inputs.artifact-file-type }}
-          git tag ${{ steps.next-tag.outputs.next-version }}
-          git push origin ${{ steps.next-tag.outputs.next-version }}
-          gh release create ${{ steps.next-tag.outputs.next-version }} ${{ inputs.artifact-path }}/${{ inputs.artifact-name }}.${{ inputs.artifact-file-type }}
+          aws s3 cp "${ARTIFACT_PATH}/${ARTIFACT_NAME}.${ARTIFACT_FILE_TYPE}" "s3://tdr-backend-code-mgmt/${LAMBDA_NAME}/${NEXT_VERSION}/${ARTIFACT_NAME}.${ARTIFACT_FILE_TYPE}"
+          git tag "${NEXT_VERSION}"
+          git push origin "${NEXT_VERSION}"
+          gh release create "${NEXT_VERSION}" "${ARTIFACT_PATH}/${ARTIFACT_NAME}.${ARTIFACT_FILE_TYPE}"
