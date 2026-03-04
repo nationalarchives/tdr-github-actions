@@ -34,14 +34,6 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.MANAGEMENT_ACCOUNT }}:role/TDRGithubActionsRoleMgmt
           aws-region: eu-west-2
           role-session-name: ECRLogin
-      - id: role-name
-        run: |
-          import os
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as fh: 
-            print(f"role-name=TDRGitHubECSUpdateRole{os.environ['TAG'].title()}", file=fh)
-        shell: python
-        env:
-          TAG: ${{ inputs.tag }}
       - name: Login to ECR
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
