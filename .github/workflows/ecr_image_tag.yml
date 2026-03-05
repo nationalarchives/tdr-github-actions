@@ -1,4 +1,7 @@
-name: TDR Tag ecr image
+# DEPRECATED: This workflow is deprecated and will be deleted after 2 weeks.
+# Keeps the same workflow_call inputs so callers don't suddenly break; logs a deprecation message.
+name: TDR Tag ecr image (DEPRECATED)
+
 on:
   workflow_call:
     inputs:
@@ -20,43 +23,22 @@ on:
 permissions:
   id-token: write
   contents: write
+
 jobs:
-  deploy:
+  deprecate:
+    name: Deprecation notice
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          ref: refs/tags/${{ inputs.to-deploy }}
-      - name: Configure AWS credentials for ECR
-        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
-        with:
-          role-to-assume: arn:aws:iam::${{ secrets.MANAGEMENT_ACCOUNT }}:role/TDRGithubActionsRoleMgmt
-          aws-region: eu-west-2
-          role-session-name: ECRLogin
-      - name: Login to ECR
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
-        with:
-          registry: ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com
-      - name: Tag image
+      - name: Checkout (optional, kept for parity)
+        uses: actions/checkout@v4
+      - name: Print deprecation notice
         run: |
-          docker pull "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${TO_DEPLOY}"
-          docker tag "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${TO_DEPLOY}" "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${TAG}"
-          docker push "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${TAG}"
-        env:
-          MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
-          IMAGE_NAME: ${{ inputs.image-name }}
-          TO_DEPLOY: ${{ inputs.to-deploy }}
-          TAG: ${{ inputs.tag }}
-      - name: Update release branch
-        run: |
-          git branch -f "release-${TAG}" HEAD
-          git push -f origin "release-${TAG}"
-        env:
-          TAG: ${{ inputs.tag }}
-      - name: Send failure message
-        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
-        if: failure()
-        with:
-          message: ":warning: Failed to tag ecr image ${{ inputs.image-name }}:${{ inputs.to-deploy }} with tag ${{ inputs.tag }}"
-          slack-url: ${{ secrets.SLACK_WEBHOOK }}
+          echo "This workflow (nationalarchives/tdr-github-actions/.github/workflows/ecr_image_tag.yml) is DEPRECATED."
+          echo "It will be removed on 2026-03-19."
+          echo "If you depend on it, let the author know ."
+          echo "Inputs received:"
+          echo "  tag: ${{ inputs.tag }}"
+          echo "  image-name: ${{ inputs.image-name }}"
+          echo "  to-deploy: ${{ inputs.to-deploy }}"
+      - name: Set deprecation output
+        run: echo "deprecated=true" >> $GITHUB_OUTPUT
