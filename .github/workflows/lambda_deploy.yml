@@ -80,13 +80,14 @@ jobs:
           LAMBDA_NAME: ${{ inputs.lambda-name }}
           DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
       - name: Deploy to lambda
+
         run: |
           if [ -n "${IMAGE_NAME}" ]; then
-            aws lambda update-function-code --function-name "${PROJECT}-${LAMBDA_NAME}-${DEPLOY_ENVIRONMENT}" --image-uri "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${DEPLOY_ENVIRONMENT}" > /dev/null
+            aws lambda update-function-code --function-name "${PROJECT}-${LAMBDA_NAME}-${DEPLOY_ENVIRONMENT}" --image-uri "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${DEPLOY_ENVIRONMENT}" --output text --query 'FunctionName'
           else
-            aws lambda update-function-code --function-name "${PROJECT}-${LAMBDA_NAME}-${DEPLOY_ENVIRONMENT}" --s3-bucket tdr-backend-code-mgmt --s3-key "${LAMBDA_NAME}/${TO_DEPLOY}/${DEPLOYMENT_PACKAGE}" > /dev/null
+            aws lambda update-function-code --function-name "${PROJECT}-${LAMBDA_NAME}-${DEPLOY_ENVIRONMENT}" --s3-bucket tdr-backend-code-mgmt --s3-key "${LAMBDA_NAME}/${TO_DEPLOY}/${DEPLOYMENT_PACKAGE}" --output text --query 'FunctionName'
           fi
-          aws lambda wait function-updated --function-name "${PROJECT}-${LAMBDA_NAME}-${DEPLOY_ENVIRONMENT}" > /dev/null
+          aws lambda wait function-updated --function-name "${PROJECT}-${LAMBDA_NAME}-${DEPLOY_ENVIRONMENT}"
         env:
           IMAGE_NAME: ${{ inputs.image-name }}
           PROJECT: ${{ inputs.project }}
