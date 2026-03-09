@@ -39,8 +39,8 @@ jobs:
       - run: |
           git config --global user.email 181243999+tna-da-bot@users.noreply.github.com
           git config --global user.name tna-da-bot
-          git checkout -b $BRANCH_NAME
-          git push -u origin $BRANCH_NAME
+          git checkout -b "$BRANCH_NAME"
+          git push -u origin "$BRANCH_NAME"
           sbt 'release with-defaults'
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
@@ -52,5 +52,7 @@ jobs:
       - name: Send success message
         uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
         with:
-          message: ":white_check_mark: ${{ inputs.library-name }} has been published"
+          message: ":white_check_mark: ${LIBRARY_NAME} has been published"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
+        env:
+          LIBRARY_NAME: ${{ inputs.library-name }}
