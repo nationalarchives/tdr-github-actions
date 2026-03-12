@@ -50,7 +50,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
       - name: Send success message
-        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@4cce7fa069b9dbecddbdacd9350f66adc50ac815 # v0.0.22
         with:
           message: ":white_check_mark: ${{ env.LIBRARY_NAME }} has been published"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
