@@ -38,7 +38,7 @@ jobs:
         with:
           fail-on-severity: critical
       - name: git-secrets
-        uses: nationalarchives/tdr-github-actions/.github/actions/run-git-secrets@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
+        uses: nationalarchives/tdr-github-actions/.github/actions/run-git-secrets@4cce7fa069b9dbecddbdacd9350f66adc50ac815 # v0.0.22
       - name: determine-failure-message
         if: failure()
         id: failure-msg
@@ -50,7 +50,7 @@ jobs:
           else
             echo "message=:warning: Build failed in repository ${{ inputs.repo-name }}" >> $GITHUB_OUTPUT
           fi
-      - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
+      - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@4cce7fa069b9dbecddbdacd9350f66adc50ac815 # v0.0.22
         if: failure()
         with:
           message: ${{ steps.failure-msg.outputs.message }}

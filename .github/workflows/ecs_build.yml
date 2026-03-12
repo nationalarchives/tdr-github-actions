@@ -63,7 +63,7 @@ jobs:
           registry: ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com
       - run: pip install requests
       - id: next-tag
-        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
+        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@4cce7fa069b9dbecddbdacd9350f66adc50ac815 # v0.0.22
         with:
           repo-name: ${{ inputs.repo-name }}
       - name: Download Wiz CLI
