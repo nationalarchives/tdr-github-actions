@@ -70,7 +70,7 @@ jobs:
             with open(conf) as file:
               function_name = f"{environ['PROJECT']}-{environ['LAMBDA_NAME']}-{environ['DEPLOY_ENVIRONMENT']}"
               resp = boto3.client("lambda").get_function_configuration(FunctionName=function_name)
-              lambda_env_vars = resp["Environment"]["Variables"]
+              lambda_env_vars = resp.get("Environment", {}).get("Variables", {})
               all_env_vars = filter(lambda x: x != "AWS_LAMBDA_FUNCTION_NAME", findall("\\$\\{([A-Z_]*)\\}", file.read()))
               exit(len(set(all_env_vars).difference(set(lambda_env_vars))))
           else:
