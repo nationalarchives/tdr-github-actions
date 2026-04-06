@@ -70,7 +70,7 @@ jobs:
           role-session-name: GitHubActionsRole
       - run: pip install requests
       - id: next-tag
-        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
+        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@683912c0ebb8d5d6edd15a222677395e95d12ce0 # v0.0.24
         with:
           repo-name: ${{ inputs.repo-name }}
       - name: Download Wiz CLI
