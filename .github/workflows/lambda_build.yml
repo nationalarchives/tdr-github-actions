@@ -43,12 +43,13 @@ on:
         description: "The next version of the project"
         value: ${{ jobs.pre-deploy.outputs.next-version }}
 
-permissions:
-  id-token: write
-  contents: write
+permissions: {}
 jobs:
   pre-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
     env:
       WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
       WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
