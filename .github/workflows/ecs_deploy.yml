@@ -37,7 +37,7 @@ jobs:
         with:
           ref: refs/tags/${{ inputs.to-deploy }}
       - name: Configure AWS credentials for ECR
-        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         with:
           role-to-assume: arn:aws:iam::${{ secrets.MANAGEMENT_ACCOUNT }}:role/TDRGithubActionsRoleMgmt
           aws-region: eu-west-2
@@ -51,7 +51,7 @@ jobs:
         env:
           DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
       - name: Login to ECR
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           registry: ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com
       - name: Tag image
@@ -65,7 +65,7 @@ jobs:
           TO_DEPLOY: ${{ inputs.to-deploy }}
           DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
       - name: Configure AWS credentials for ECS
-        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         with:
           role-to-assume: arn:aws:iam::${{ secrets.ACCOUNT_NUMBER }}:role/${{ steps.role-name.outputs.role-name }}
           aws-region: eu-west-2
@@ -103,7 +103,7 @@ jobs:
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Run E2E tests
         if: inputs.environment != 'prod'
-        uses: octokit/request-action@dad4362715b7fb2ddedf9772c8670824af564f0d # v2.4.0
+        uses: octokit/request-action@b91aabaa861c777dcdb14e2387e30eddf04619ae # v3.0.0
         with:
           route: POST /repos/nationalarchives/tdr-e2e-tests/actions/workflows/ci.yml/dispatches
           ref: master
