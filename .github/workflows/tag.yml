@@ -21,8 +21,9 @@ jobs:
       - name: Create tag and release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEXT_VERSION: ${{ steps.next-tag.outputs.next-version }}
         run: |
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-          git tag ${{ steps.next-tag.outputs.next-version }}
-          git push origin ${{ steps.next-tag.outputs.next-version }}
-          gh release create ${{ steps.next-tag.outputs.next-version }}
+          git tag "$NEXT_VERSION"
+          git push origin "$NEXT_VERSION"
+          gh release create "$NEXT_VERSION"

@@ -43,7 +43,6 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      account-number-secret: ${{ steps.set-environment-names.outputs.account_number_secret }}
       title-environment: ${{ steps.set-environment-names.outputs.title_environment }}
     steps:
       - id: set-environment-names
@@ -54,7 +53,6 @@ jobs:
           env = os.environ['INPUT_ENVIRONMENT']
           with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
             print(f"title_environment={env.title()}", file=fh)
-            print(f"account_number_secret={env.upper()}_ACCOUNT_NUMBER", file=fh)
         shell: python
   plan:
     runs-on: ubuntu-latest
@@ -82,13 +80,20 @@ jobs:
         env:
           GITHUB_OWNER: nationalarchives
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
-          TF_VAR_tdr_account_number: ${{ secrets[needs.setup.outputs.account-number-secret] }}
+          TF_ACCOUNT_INTG: ${{ secrets.INTG_ACCOUNT_NUMBER }}
+          TF_ACCOUNT_STAGING: ${{ secrets.STAGING_ACCOUNT_NUMBER }}
+          TF_ACCOUNT_PROD: ${{ secrets.PROD_ACCOUNT_NUMBER }}
           # 'hosting_project' Terraform variable required to support reference generator service Terraform
           TF_VAR_hosting_project: ${{ inputs.project }}
           TF_ENVIRONMENT: ${{ inputs.environment }}
           GH_RUN_ID: ${{ github.run_id }}
           GH_RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
+          case "$TF_ENVIRONMENT" in
+            intg)    export TF_VAR_tdr_account_number="$TF_ACCOUNT_INTG" ;;
+            staging) export TF_VAR_tdr_account_number="$TF_ACCOUNT_STAGING" ;;
+            *)       export TF_VAR_tdr_account_number="$TF_ACCOUNT_PROD" ;;
+          esac
           terraform init
           terraform workspace select "$TF_ENVIRONMENT"
           pip install boto3
