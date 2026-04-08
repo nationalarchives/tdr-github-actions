@@ -57,4 +57,7 @@ jobs:
         with:
           message: ${{ steps.failure-msg.outputs.message }}
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
-      - run: ${{ inputs.test-command }}
+      - name: Run tests
+        env:
+          TEST_COMMAND: ${{ inputs.test-command }}
+        run: $TEST_COMMAND

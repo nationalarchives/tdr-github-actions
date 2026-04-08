@@ -47,9 +47,11 @@ jobs:
       title-environment: ${{ steps.set-environment-names.outputs.title_environment }}
     steps:
       - id: set-environment-names
+        env:
+          INPUT_ENVIRONMENT: ${{ inputs.environment }}
         run: |
           import os
-          env = "${{ inputs.environment }}"
+          env = os.environ['INPUT_ENVIRONMENT']
           with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
             print(f"title_environment={env.title()}", file=fh)
             print(f"account_number_secret={env.upper()}_ACCOUNT_NUMBER", file=fh)
@@ -83,13 +85,16 @@ jobs:
           TF_VAR_tdr_account_number: ${{ secrets[needs.setup.outputs.account-number-secret] }}
           # 'hosting_project' Terraform variable required to support reference generator service Terraform
           TF_VAR_hosting_project: ${{ inputs.project }}
+          TF_ENVIRONMENT: ${{ inputs.environment }}
+          GH_RUN_ID: ${{ github.run_id }}
+          GH_RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
           terraform init
-          terraform workspace select ${{ inputs.environment }}
+          terraform workspace select "$TF_ENVIRONMENT"
           pip install boto3
           terraform plan -no-color -out=out > /dev/null
           terraform show -no-color out > out.plan
-          python $GITHUB_WORKSPACE/.github/scripts/logs.py out.plan "${{ github.run_id }}${{ github.run_attempt }}" "terraform-plan-outputs-${{ inputs.environment }}"
+          python $GITHUB_WORKSPACE/.github/scripts/logs.py out.plan "${GH_RUN_ID}${GH_RUN_ATTEMPT}" "terraform-plan-outputs-${TF_ENVIRONMENT}"
       - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
         with:
           message: |
@@ -128,27 +133,35 @@ jobs:
           TF_VAR_tdr_account_number: ${{ secrets.ACCOUNT_NUMBER }}
           # 'hosting_project' Terraform variable required to support reference generator service Terraform
           TF_VAR_hosting_project: ${{ inputs.project }}
+          TF_ENVIRONMENT: ${{ inputs.environment }}
         run: |
           terraform init
-          terraform workspace select ${{ inputs.environment }}
+          terraform workspace select "$TF_ENVIRONMENT"
           terraform apply --auto-approve -no-color > apply_output.txt 2>&1
       - name: Upload logs
         id: apply-logs
         if: failure()
+        env:
+          GH_RUN_ID: ${{ github.run_id }}
+          GH_RUN_ATTEMPT: ${{ github.run_attempt }}
+          TF_ENVIRONMENT: ${{ inputs.environment }}
         run: |
           pip install boto3
-          python $GITHUB_WORKSPACE/.github/scripts/logs.py apply_output.txt "${{ github.run_id }}${{ github.run_attempt }}" "terraform-apply-outputs-${{ inputs.environment }}"
+          python $GITHUB_WORKSPACE/.github/scripts/logs.py apply_output.txt "${GH_RUN_ID}${GH_RUN_ATTEMPT}" "terraform-apply-outputs-${TF_ENVIRONMENT}"
       - id: next-tag
         uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
         with:
           repo-name: ${{ inputs.repo-name }}
       - name: Run git tag
         if: ${{ inputs.update-tag }}
+        env:
+          NEXT_VERSION: ${{ steps.next-tag.outputs.next-version }}
+          DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
         run: |
-          git tag ${{ steps.next-tag.outputs.next-version }}
-          git push origin ${{ steps.next-tag.outputs.next-version }}
-          git branch -f release-${{ inputs.environment }} HEAD
-          git push -f origin release-${{ inputs.environment }}
+          git tag "$NEXT_VERSION"
+          git push origin "$NEXT_VERSION"
+          git branch -f "release-${DEPLOY_ENVIRONMENT}" HEAD
+          git push -f origin "release-${DEPLOY_ENVIRONMENT}"
       - name: Send failure message
         if: failure()
         uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
