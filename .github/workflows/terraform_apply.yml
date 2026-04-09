@@ -39,6 +39,8 @@ on:
         required: false
       PROD_ACCOUNT_NUMBER:
         required: false
+      DEV_ACCOUNT_NUMBER:
+        required: false
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -83,6 +85,7 @@ jobs:
           TF_ACCOUNT_INTG: ${{ secrets.INTG_ACCOUNT_NUMBER }}
           TF_ACCOUNT_STAGING: ${{ secrets.STAGING_ACCOUNT_NUMBER }}
           TF_ACCOUNT_PROD: ${{ secrets.PROD_ACCOUNT_NUMBER }}
+          TF_ACCOUNT_DEV: ${{ secrets.DEV_ACCOUNT_NUMBER }}
           # 'hosting_project' Terraform variable required to support reference generator service Terraform
           TF_VAR_hosting_project: ${{ inputs.project }}
           TF_ENVIRONMENT: ${{ inputs.environment }}
@@ -92,6 +95,7 @@ jobs:
           case "$TF_ENVIRONMENT" in
             intg)    export TF_VAR_tdr_account_number="$TF_ACCOUNT_INTG" ;;
             staging) export TF_VAR_tdr_account_number="$TF_ACCOUNT_STAGING" ;;
+            dev)     export TF_VAR_tdr_account_number="$TF_ACCOUNT_DEV" ;;
             *)       export TF_VAR_tdr_account_number="$TF_ACCOUNT_PROD" ;;
           esac
           terraform init
