@@ -60,4 +60,4 @@ jobs:
       - name: Run tests
         env:
           TEST_COMMAND: ${{ inputs.test-command }}
-        run: $TEST_COMMAND
+        run: eval "$TEST_COMMAND"
