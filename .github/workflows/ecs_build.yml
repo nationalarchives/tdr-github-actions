@@ -87,23 +87,41 @@ jobs:
         if: ${{ inputs.build-command }}
         run: eval "$BUILD_COMMAND"
       - name: Scan working directory with Wiz
-        run: ./wizcli scan dir . --name ${{ inputs.image-name }}-${{ github.run_number }} --project ${{ secrets.WIZ_PROJECT_ID }}
+        env:
+          IMAGE_NAME: ${{ inputs.image-name }}
+          WIZ_PROJECT_ID: ${{ secrets.WIZ_PROJECT_ID }}
+        run: ./wizcli scan dir . --name "${IMAGE_NAME}-${{ github.run_number }}" --project "$WIZ_PROJECT_ID"
       - name: Build new image version
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
+          IMAGE_NAME: ${{ inputs.image-name }}
+          NEXT_VERSION: ${{ steps.next-tag.outputs.next-version }}
+          MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
         run: |
-          docker buildx build --output=type=docker --provenance=false --sbom=false -t ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }} .
+          docker buildx build --output=type=docker --provenance=false --sbom=false -t "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${NEXT_VERSION}" .
       - name: Wiz container image scan
+        env:
+          IMAGE_NAME: ${{ inputs.image-name }}
+          NEXT_VERSION: ${{ steps.next-tag.outputs.next-version }}
+          MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
+          WIZ_PROJECT_ID: ${{ secrets.WIZ_PROJECT_ID }}
         run: |
-          ./wizcli scan container-image ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }} --project ${{ secrets.WIZ_PROJECT_ID }}
+          ./wizcli scan container-image "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${NEXT_VERSION}" --project "$WIZ_PROJECT_ID"
       - name: Push new image version to ECR
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
+          IMAGE_NAME: ${{ inputs.image-name }}
+          NEXT_VERSION: ${{ steps.next-tag.outputs.next-version }}
+          MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
         run: |
-          docker push ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }}
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
-          git tag ${{ steps.next-tag.outputs.next-version }}
-          git push origin ${{ steps.next-tag.outputs.next-version }}
+          docker push "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${NEXT_VERSION}"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
+          git tag "$NEXT_VERSION"
+          git push origin "$NEXT_VERSION"
       - name: Wiz Docker Tag
+        env:
+          IMAGE_NAME: ${{ inputs.image-name }}
+          NEXT_VERSION: ${{ steps.next-tag.outputs.next-version }}
+          MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
         run: |
-          ./wizcli tag ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com/${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }}
+          ./wizcli tag "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${NEXT_VERSION}"
