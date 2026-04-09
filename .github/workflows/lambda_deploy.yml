@@ -43,6 +43,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: refs/tags/${{ inputs.to-deploy }}
+          persist-credentials: false
       - id: role-name
         run: |
           import os
@@ -113,9 +114,11 @@ jobs:
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Update release branch
         run: |
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git branch -f "release-${DEPLOY_ENVIRONMENT}" HEAD
           git push -f origin "release-${DEPLOY_ENVIRONMENT}"
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
       - name: Send failure message
         uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
