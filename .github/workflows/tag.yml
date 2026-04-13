@@ -15,7 +15,7 @@ jobs:
         with:
           persist-credentials: false
       - id: next-tag
-        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v0.0.15
+        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@27efbc03aaaa9696eea85ab7a9363d6f92733471 # v0.0.34
         with:
           repo-name: tdr-github-actions
       - name: Create tag and release
