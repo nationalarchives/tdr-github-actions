@@ -46,12 +46,14 @@ jobs:
         id: failure-msg
         run: |
           if [[ "${{ steps.dependency-review.outcome }}" == "failure" ]]; then
-            echo "message=:warning: Critical dependency vulnerabilities found in ${{ inputs.repo-name }}" >> $GITHUB_OUTPUT
+            echo "message=:warning: Critical dependency vulnerabilities found in ${REPO_NAME}" >> $GITHUB_OUTPUT
           elif [[ "${{ steps.git-secrets.outcome }}" == "failure" ]]; then
-            echo "message=:warning: Secrets found in repository ${{ inputs.repo-name }}" >> $GITHUB_OUTPUT
+            echo "message=:warning: Secrets found in repository ${REPO_NAME}" >> $GITHUB_OUTPUT
           else
-            echo "message=:warning: Build failed in repository ${{ inputs.repo-name }}" >> $GITHUB_OUTPUT
+            echo "message=:warning: Build failed in repository ${REPO_NAME}" >> $GITHUB_OUTPUT
           fi
+        env:
+          REPO_NAME: ${{ inputs.repo-name }}
       - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@27efbc03aaaa9696eea85ab7a9363d6f92733471 # v0.0.34
         if: failure()
         with:
