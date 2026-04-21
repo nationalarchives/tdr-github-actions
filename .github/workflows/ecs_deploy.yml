@@ -87,7 +87,7 @@ jobs:
         env:
           DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
       - name: Send success message
-        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@27efbc03aaaa9696eea85ab7a9363d6f92733471 # v0.0.34
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@9214d929d74b527c75cdac14ba96812f90b3ebba # v0.0.35
         with:
           message: ":white_check_mark: Service ${{ inputs.image-name }} updated to version ${{ inputs.to-deploy }} in ${{ inputs.environment }} (<https://github.com/${{ github.repository }}/compare/${{ steps.release-commits.outputs.prior-release-commit }}...${{ steps.release-commits.outputs.current-commit }}|See changes>)"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
@@ -100,7 +100,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
       - name: Send failure message
-        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@27efbc03aaaa9696eea85ab7a9363d6f92733471 # v0.0.34
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@9214d929d74b527c75cdac14ba96812f90b3ebba # v0.0.35
         if: failure()
         with:
           message: ":warning: Build failed for ${{ inputs.image-name }}"
