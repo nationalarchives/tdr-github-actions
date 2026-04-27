@@ -40,7 +40,7 @@ jobs:
         with:
           fail-on-severity: critical
       - name: git-secrets
-        uses: nationalarchives/tdr-github-actions/.github/actions/run-git-secrets@9214d929d74b527c75cdac14ba96812f90b3ebba # v0.0.35
+        uses: nationalarchives/tdr-github-actions/.github/actions/run-git-secrets@8f8b90556173b43554c22d6b5f192fe9f26ad8ab # v0.0.36
       - name: determine-failure-message
         if: failure()
         id: failure-msg
@@ -56,7 +56,7 @@ jobs:
           REPO_NAME: ${{ inputs.repo-name }}
           DEPENDENCY_REVIEW_OUTCOME: ${{ steps.dependency-review.outcome }}
           GIT_SECRETS_OUTCOME: ${{ steps.git-secrets.outcome }}
-      - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@9214d929d74b527c75cdac14ba96812f90b3ebba # v0.0.35
+      - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@8f8b90556173b43554c22d6b5f192fe9f26ad8ab # v0.0.36
         if: failure()
         with:
           message: ${{ steps.failure-msg.outputs.message }}
