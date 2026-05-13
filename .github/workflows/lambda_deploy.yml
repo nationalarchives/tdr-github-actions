@@ -108,7 +108,7 @@ jobs:
         env:
           DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
       - name: Send success message
-        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@8f8b90556173b43554c22d6b5f192fe9f26ad8ab # v0.0.36
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@e7b57a3bdf7863c951cd203101c6d566986376e3 # v0.0.38
         with:
           message: ":white_check_mark: Lambda ${{ inputs.lambda-name }} updated to version ${{ inputs.to-deploy }} in ${{ inputs.environment }} (<https://github.com/${{ github.repository }}/compare/${{ steps.release-commits.outputs.prior-release-commit }}...${{ steps.release-commits.outputs.current-commit }}|See changes>)"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
@@ -121,7 +121,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
       - name: Send failure message
-        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@8f8b90556173b43554c22d6b5f192fe9f26ad8ab # v0.0.36
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@e7b57a3bdf7863c951cd203101c6d566986376e3 # v0.0.38
         if: failure()
         with:
           message: ":warning: Build failed for ${{ inputs.lambda-name }}"
