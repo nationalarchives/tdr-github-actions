@@ -24,7 +24,9 @@ on:
       SLACK_WEBHOOK:
         required: true
 
-permissions: {}
+permissions:
+  id-token: write
+  contents: write
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -58,9 +60,9 @@ jobs:
           registry: ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com
       - name: Tag image
         run: |
-          docker pull "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${TO_DEPLOY}"
+          docker pull --quiet "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${TO_DEPLOY}"
           docker tag "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${TO_DEPLOY}" "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${DEPLOY_ENVIRONMENT}"
-          docker push "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${DEPLOY_ENVIRONMENT}"
+          docker push --quiet "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${DEPLOY_ENVIRONMENT}"
         env:
           MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
           IMAGE_NAME: ${{ inputs.image-name }}
@@ -93,9 +95,7 @@ jobs:
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Update release branch
         run: |
-          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git branch -f "release-${DEPLOY_ENVIRONMENT}" HEAD
-          git push -f origin "release-${DEPLOY_ENVIRONMENT}"
+          git -c "http.https://github.com/.extraheader=Authorization: basic $(printf 'x-access-token:%s' "${GITHUB_TOKEN}" | base64 -w0)" push -f origin HEAD:"refs/heads/release-${DEPLOY_ENVIRONMENT}"
         env:
           GITHUB_TOKEN: ${{ github.token }}
           DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
