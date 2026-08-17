@@ -9,7 +9,6 @@
 - nationalarchives/tdr-consignment-api:scala-steward-dependencies
 - nationalarchives/tdr-consignment-api-data:scala-steward-dependencies
 - nationalarchives/tdr-consignment-export:scala-steward-dependencies
-- nationalarchives/tdr-consignment-export-authoriser:scala-steward-dependencies
 - nationalarchives/tdr-create-db-users:scala-steward-dependencies
 - nationalarchives/tdr-draft-metadata-validator:scala-steward-dependencies
 - nationalarchives/tdr-e2e-tests:scala-steward-dependencies
