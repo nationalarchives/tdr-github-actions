@@ -37,8 +37,8 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.MANAGEMENT_ACCOUNT }}:role/TDRGithubTerraformAssumeRoleIntg
           aws-region: eu-west-2
           role-session-name: TerraformRole
-      - uses: nationalarchives/tdr-github-actions/.github/actions/run-git-secrets@e3622e3bbb9019981b3aaf6b278b2fce0c7d812b # v0.0.40
-      - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@e3622e3bbb9019981b3aaf6b278b2fce0c7d812b # v0.0.40
+      - uses: nationalarchives/tdr-github-actions/.github/actions/run-git-secrets@f4d7086babd2c5156dd483d445e4500a603d8dc4 # v0.0.42
+      - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@f4d7086babd2c5156dd483d445e4500a603d8dc4 # v0.0.42
         if: failure()
         with:
           message: ":warning: Secrets found in repository ${{ inputs.repo-name }}"
