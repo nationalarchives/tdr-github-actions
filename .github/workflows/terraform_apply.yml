@@ -32,6 +32,10 @@ on:
         type: boolean
         required: false
         default: false
+      target-kms-keys:
+        type: boolean
+        required: false
+        default: false
     secrets:
       MANAGEMENT_ACCOUNT:
         required: true
@@ -101,6 +105,7 @@ jobs:
           GH_RUN_ATTEMPT: ${{ github.run_attempt }}
           TF_VAR_admin_sso_internal_access_manually_enabled: ${{ inputs.allow-admin-access-internal }}
           TF_VAR_admin_sso_export_access_manually_enabled: ${{ inputs.allow-admin-access-export }}
+          TARGET_KMS_KEYS: ${{ inputs.target-kms-keys }}
         run: |
           case "$TF_ENVIRONMENT" in
             intg)    export TF_VAR_tdr_account_number="$TF_ACCOUNT_INTG" ;;
@@ -111,9 +116,21 @@ jobs:
           terraform init
           terraform workspace select "$TF_ENVIRONMENT"
           pip install boto3
-          terraform plan -no-color -out=out > /dev/null
+
+          TARGET_ARGS=""
+          if [ "$TARGET_KMS_KEYS" = "true" ]; then
+            TARGET_ARGS="-target=module.s3_internal_kms_key -target=module.s3_external_kms_key"
+          fi
+
+          terraform plan -no-color $TARGET_ARGS -out=out > /dev/null
           terraform show -no-color out > out.plan
           python $GITHUB_WORKSPACE/.github/scripts/logs.py out.plan "${GH_RUN_ID}${GH_RUN_ATTEMPT}" "terraform-plan-outputs-${TF_ENVIRONMENT}"
+      - name: Upload plan file
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: tfplan-${{ inputs.environment }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ inputs.working-directory }}/out
+          retention-days: 1
       - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@e3622e3bbb9019981b3aaf6b278b2fce0c7d812b # v0.0.40
         with:
           message: |
@@ -145,6 +162,11 @@ jobs:
       - uses: hashicorp/setup-terraform@5e8dbf3c6d9deaf4193ca7a8fb23f2ac83bb6c85 # v4.0.0
         with:
           terraform_version: ${{ inputs.terraform-version }}
+      - name: Download plan file
+        uses: actions/download-artifact@484a0b528fb4d7bd804637ccb632e47a0e638317
+        with:
+          name: tfplan-${{ inputs.environment }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ inputs.working-directory }}
       - name: Run apply
         env:
           GITHUB_OWNER: nationalarchives
@@ -153,10 +175,12 @@ jobs:
           # 'hosting_project' Terraform variable required to support reference generator service Terraform
           TF_VAR_hosting_project: ${{ inputs.project }}
           TF_ENVIRONMENT: ${{ inputs.environment }}
+          TF_VAR_admin_sso_internal_access_manually_enabled: ${{ inputs.allow-admin-access-internal }}
+          TF_VAR_admin_sso_export_access_manually_enabled: ${{ inputs.allow-admin-access-export }}
         run: |
           terraform init
           terraform workspace select "$TF_ENVIRONMENT"
-          terraform apply --auto-approve -no-color > apply_output.txt 2>&1
+          terraform apply --auto-approve -no-color out > apply_output.txt 2>&1
       - name: Upload logs
         id: apply-logs
         if: failure()
