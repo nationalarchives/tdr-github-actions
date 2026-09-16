@@ -4,6 +4,14 @@ inputs:
   repo-name:
     description: 'The name of the repository'
     required: true
+  snapshot:
+    description: >
+      If true, do not bump the version. Instead return the current version
+      suffixed with -SNAPSHOT-dev-<actor>, for ad hoc developer builds of dev
+      snapshots. Snapshot tags are never treated as the "current" version, so
+      they can never affect version calculations for real releases.
+    required: false
+    default: 'false'
 outputs:
   next-version:
     description: The next version for the repository
@@ -16,10 +24,16 @@ runs:
     - id: next-tag
       run: |
          import requests, re, semver, os
-         json = requests.get("${{ github.api_url }}/repos/nationalarchives/${{ inputs.repo-name }}/tags").json()
-         version = json[0]['name']
-         with open(os.environ['GITHUB_OUTPUT'], 'a') as fh: 
-           if re.search("v\d*$", version) != None:
+         tags = requests.get("${{ github.api_url }}/repos/nationalarchives/${{ inputs.repo-name }}/tags").json()
+         # Snapshot tags are never the basis for a version calculation, real
+         # or snapshot, so they're filtered out here.
+         release_tags = [tag for tag in tags if "-SNAPSHOT-" not in tag["name"]]
+         version = release_tags[0]["name"]
+         snapshot = "${{ inputs.snapshot }}" == "true"
+         with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+           if snapshot:
+             print(f"next-version={version}-SNAPSHOT-dev-${{ github.actor }}", file=fh)
+           elif re.search("v\d*$", version) != None:
              print(f"next-version=v{int(version[1:]) + 1}", file=fh)
            else:
              next_version = str(semver.parse_version_info(version[1:]).bump_patch())
