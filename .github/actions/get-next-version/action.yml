@@ -22,20 +22,35 @@ runs:
     - run: pip install requests semver
       shell: bash
     - id: next-tag
+      env:
+        GITHUB_API_URL: ${{ github.api_url }}
+        REPO_NAME: ${{ inputs.repo-name }}
+        SNAPSHOT: ${{ inputs.snapshot }}
+        GITHUB_ACTOR: ${{ github.actor }}
       run: |
-         import requests, re, semver, os
-         tags = requests.get("${{ github.api_url }}/repos/nationalarchives/${{ inputs.repo-name }}/tags").json()
-         # Snapshot tags are never the basis for a version calculation, real
-         # or snapshot, so they're filtered out here.
-         release_tags = [tag for tag in tags if "-SNAPSHOT-" not in tag["name"]]
-         version = release_tags[0]["name"]
-         snapshot = "${{ inputs.snapshot }}" == "true"
-         with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
-           if snapshot:
-             print(f"next-version={version}-SNAPSHOT-dev-${{ github.actor }}", file=fh)
-           elif re.search("v\d*$", version) != None:
-             print(f"next-version=v{int(version[1:]) + 1}", file=fh)
-           else:
-             next_version = str(semver.parse_version_info(version[1:]).bump_patch())
-             print(f"next-version=v{next_version}", file=fh)
-      shell: python
+        python - <<'PY'
+        import os
+        import re
+        import semver
+        import requests
+
+        github_api_url = os.environ["GITHUB_API_URL"]
+        repo_name = os.environ["REPO_NAME"]
+        snapshot = os.environ.get("SNAPSHOT", "false") == "true"
+        tags = requests.get(f"{github_api_url}/repos/nationalarchives/{repo_name}/tags").json()
+
+        # Snapshot tags are never the basis for a version calculation, real
+        # or snapshot, so they're filtered out here.
+        release_tags = [tag for tag in tags if "-SNAPSHOT-" not in tag["name"]]
+        version = release_tags[0]["name"]
+
+        with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+          if snapshot:
+            print(f"next-version={version}-SNAPSHOT-dev-{os.environ['GITHUB_ACTOR']}", file=fh)
+          elif re.search(r"v\d*$", version) is not None:
+            print(f"next-version=v{int(version[1:]) + 1}", file=fh)
+          else:
+            next_version = str(semver.parse_version_info(version[1:]).bump_patch())
+            print(f"next-version=v{next_version}", file=fh)
+        PY
+      shell: bash

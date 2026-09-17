@@ -108,8 +108,11 @@ jobs:
           WIZ_PROJECT_ID: ${{ secrets.WIZ_PROJECT_ID }}
       - name: Run build command
         env:
+          BUILD_COMMAND: ${{ inputs.build-command }}
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
-        run: ${{ inputs.build-command }}
+        shell: bash
+        run: |
+          bash -lc "$BUILD_COMMAND"
       - name: Wiz image tag
         if: contains(inputs.build-command, 'docker')
         run: ./wizcli scan container-image function --project "${WIZ_PROJECT_ID}"
