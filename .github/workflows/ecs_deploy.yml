@@ -106,7 +106,7 @@ jobs:
           message: ":warning: Build failed for ${{ inputs.image-name }}"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Run E2E tests
-        if: inputs.environment != 'prod'
+        if: inputs.environment != 'prod' && inputs.environment != 'dev'
         uses: octokit/request-action@b91aabaa861c777dcdb14e2387e30eddf04619ae # v3.0.0
         with:
           route: POST /repos/nationalarchives/tdr-e2e-tests/actions/workflows/ci.yml/dispatches
