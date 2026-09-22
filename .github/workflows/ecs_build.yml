@@ -81,7 +81,7 @@ jobs:
           registry: ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com
       - run: pip install requests
       - id: next-tag
-        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@e3622e3bbb9019981b3aaf6b278b2fce0c7d812b # v0.0.40
+        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@f196d1c9424455c7d7d00afe7976d2f0f44cf7cf # adds snapshot support
         with:
           repo-name: ${{ inputs.repo-name }}
           snapshot: ${{ inputs.snapshot }}
