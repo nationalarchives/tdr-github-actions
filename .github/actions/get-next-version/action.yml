@@ -7,9 +7,10 @@ inputs:
   snapshot:
     description: >
       If true, do not bump the version. Instead return the current version
-      suffixed with -SNAPSHOT-dev-<actor>, for ad hoc developer builds of dev
-      snapshots. Snapshot tags are never treated as the "current" version, so
-      they can never affect version calculations for real releases.
+      suffixed with -SNAPSHOT-dev-<short-sha>-<actor>, for ad hoc developer
+      builds of dev snapshots. Snapshot tags are never treated as the
+      "current" version, so they can never affect version calculations for
+      real releases.
     required: false
     default: 'false'
 outputs:
@@ -27,6 +28,7 @@ runs:
         REPO_NAME: ${{ inputs.repo-name }}
         SNAPSHOT: ${{ inputs.snapshot }}
         GITHUB_ACTOR: ${{ github.actor }}
+        SHORT_SHA: ${{ github.sha }}
       run: |
         python - <<'PY'
         import os
@@ -46,7 +48,8 @@ runs:
 
         with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
           if snapshot:
-            print(f"next-version={version}-SNAPSHOT-dev-{os.environ['GITHUB_ACTOR']}", file=fh)
+            short_sha = os.environ["SHORT_SHA"][:7]
+            print(f"next-version={version}-SNAPSHOT-dev-{short_sha}-{os.environ['GITHUB_ACTOR']}", file=fh)
           elif re.search(r"v\d*$", version) is not None:
             print(f"next-version=v{int(version[1:]) + 1}", file=fh)
           else:
