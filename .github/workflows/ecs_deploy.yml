@@ -35,6 +35,16 @@ jobs:
       id-token: write
       contents: write
     steps:
+      # Snapshot builds are for ad hoc developer testing in dev only; block
+      # them from ever being deployed to a shared environment.
+      - name: Guard against deploying a snapshot outside dev
+        if: ${{ contains(inputs.to-deploy, '-SNAPSHOT-') && inputs.environment != 'dev' }}
+        env:
+          TO_DEPLOY: ${{ inputs.to-deploy }}
+          ENVIRONMENT: ${{ inputs.environment }}
+        run: |
+          echo "::error::$TO_DEPLOY is a snapshot build and cannot be deployed to $ENVIRONMENT"
+          exit 1
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -106,7 +116,7 @@ jobs:
           message: ":warning: Build failed for ${{ inputs.image-name }}"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Run E2E tests
-        if: inputs.environment != 'prod'
+        if: inputs.environment == 'intg' || inputs.environment == 'staging'
         uses: octokit/request-action@b91aabaa861c777dcdb14e2387e30eddf04619ae # v3.0.0
         with:
           route: POST /repos/nationalarchives/tdr-e2e-tests/actions/workflows/ci.yml/dispatches
