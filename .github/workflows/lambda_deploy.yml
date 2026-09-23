@@ -43,8 +43,11 @@ jobs:
       # them from ever being deployed to a shared environment.
       - name: Guard against deploying a snapshot outside dev
         if: ${{ contains(inputs.to-deploy, '-SNAPSHOT-') && inputs.environment != 'dev' }}
+        env:
+          TO_DEPLOY: ${{ inputs.to-deploy }}
+          ENVIRONMENT: ${{ inputs.environment }}
         run: |
-          echo "::error::${{ inputs.to-deploy }} is a snapshot build and cannot be deployed to ${{ inputs.environment }}"
+          echo "::error::$TO_DEPLOY is a snapshot build and cannot be deployed to $ENVIRONMENT"
           exit 1
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
