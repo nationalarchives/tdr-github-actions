@@ -24,6 +24,18 @@ on:
         type: boolean
         required: false
         default: true
+      allow-admin-access-internal:
+        type: boolean
+        required: false
+        default: false
+      allow-admin-access-export:
+        type: boolean
+        required: false
+        default: false
+      target-kms-keys:
+        type: boolean
+        required: false
+        default: false
     secrets:
       MANAGEMENT_ACCOUNT:
         required: true
@@ -91,6 +103,9 @@ jobs:
           TF_ENVIRONMENT: ${{ inputs.environment }}
           GH_RUN_ID: ${{ github.run_id }}
           GH_RUN_ATTEMPT: ${{ github.run_attempt }}
+          TF_VAR_admin_sso_internal_access_manually_enabled: ${{ inputs.allow-admin-access-internal }}
+          TF_VAR_admin_sso_export_access_manually_enabled: ${{ inputs.allow-admin-access-export }}
+          TARGET_KMS_KEYS: ${{ inputs.target-kms-keys }}
         run: |
           case "$TF_ENVIRONMENT" in
             intg)    export TF_VAR_tdr_account_number="$TF_ACCOUNT_INTG" ;;
@@ -101,10 +116,22 @@ jobs:
           terraform init
           terraform workspace select "$TF_ENVIRONMENT"
           pip install boto3
-          terraform plan -no-color -out=out > /dev/null
+
+          TARGET_ARGS=""
+          if [ "$TARGET_KMS_KEYS" = "true" ]; then
+            TARGET_ARGS="-target=module.s3_internal_kms_key -target=module.s3_external_kms_key"
+          fi
+
+          terraform plan -no-color $TARGET_ARGS -out=out > /dev/null
           terraform show -no-color out > out.plan
           python $GITHUB_WORKSPACE/.github/scripts/logs.py out.plan "${GH_RUN_ID}${GH_RUN_ATTEMPT}" "terraform-plan-outputs-${TF_ENVIRONMENT}"
-      - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@e3622e3bbb9019981b3aaf6b278b2fce0c7d812b # v0.0.40
+      - name: Upload plan file
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: tfplan-${{ inputs.environment }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ inputs.working-directory }}/out
+          retention-days: 1
+      - uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@68960904fc1b628f92756d3f760e7ab64cfe95f2 # v0.0.44
         with:
           message: |
             :book: Terraform plan ready for repository ${{ inputs.repo-name }} environment ${{ inputs.environment }}
@@ -135,6 +162,11 @@ jobs:
       - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
           terraform_version: ${{ inputs.terraform-version }}
+      - name: Download plan file
+        uses: actions/download-artifact@484a0b528fb4d7bd804637ccb632e47a0e638317
+        with:
+          name: tfplan-${{ inputs.environment }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ inputs.working-directory }}
       - name: Run apply
         env:
           GITHUB_OWNER: nationalarchives
@@ -143,10 +175,12 @@ jobs:
           # 'hosting_project' Terraform variable required to support reference generator service Terraform
           TF_VAR_hosting_project: ${{ inputs.project }}
           TF_ENVIRONMENT: ${{ inputs.environment }}
+          TF_VAR_admin_sso_internal_access_manually_enabled: ${{ inputs.allow-admin-access-internal }}
+          TF_VAR_admin_sso_export_access_manually_enabled: ${{ inputs.allow-admin-access-export }}
         run: |
           terraform init
           terraform workspace select "$TF_ENVIRONMENT"
-          terraform apply --auto-approve -no-color > apply_output.txt 2>&1
+          terraform apply --auto-approve -no-color out > apply_output.txt 2>&1
       - name: Upload logs
         id: apply-logs
         if: failure()
@@ -158,7 +192,7 @@ jobs:
           pip install boto3
           python $GITHUB_WORKSPACE/.github/scripts/logs.py apply_output.txt "${GH_RUN_ID}${GH_RUN_ATTEMPT}" "terraform-apply-outputs-${TF_ENVIRONMENT}"
       - id: next-tag
-        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@e3622e3bbb9019981b3aaf6b278b2fce0c7d812b # v0.0.40
+        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@68960904fc1b628f92756d3f760e7ab64cfe95f2 # v0.0.44
         with:
           repo-name: ${{ inputs.repo-name }}
       - name: Run git tag
@@ -173,14 +207,14 @@ jobs:
           git push -f origin "release-${DEPLOY_ENVIRONMENT}"
       - name: Send failure message
         if: failure()
-        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@e3622e3bbb9019981b3aaf6b278b2fce0c7d812b # v0.0.40
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@68960904fc1b628f92756d3f760e7ab64cfe95f2 # v0.0.44
         with:
           message: |
             :warning: ${{ inputs.repo-name }} deploy failed for ${{ inputs.environment }}
             :log: View the <${{ steps.apply-logs.outputs.log-url }}|apply logs> in the management account.
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Send success message
-        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@e3622e3bbb9019981b3aaf6b278b2fce0c7d812b # v0.0.40
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@68960904fc1b628f92756d3f760e7ab64cfe95f2 # v0.0.44
         with:
           message: ":white_check_mark: ${{ inputs.repo-name }} deploy successful for ${{ inputs.environment }}"
           slack-url: ${{ secrets.SLACK_WEBHOOK }}
