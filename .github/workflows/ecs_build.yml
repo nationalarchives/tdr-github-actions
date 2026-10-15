@@ -92,9 +92,9 @@ jobs:
         run: |
           WIZ_DIR="$RUNNER_TEMP/wiz"
           mkdir -p "$WIZ_DIR"
-          curl -Lo "$WIZ_DIR/wizcli" https://downloads.wiz.io/v1/wizcli/1.26.9/wizcli-linux-amd64
-          curl -Lo "$WIZ_DIR/wizcli-sha256" https://downloads.wiz.io/v1/wizcli/1.26.9/wizcli-linux-amd64-sha256
-          curl -Lo "$WIZ_DIR/wizcli-sha256.sig" https://downloads.wiz.io/v1/wizcli/1.26.9/wizcli-linux-amd64-sha256.sig
+          curl -Lo "$WIZ_DIR/wizcli" https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64
+          curl -Lo "$WIZ_DIR/wizcli-sha256" https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64-sha256
+          curl -Lo "$WIZ_DIR/wizcli-sha256.sig" https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64-sha256.sig
           chmod +x "$WIZ_DIR/wizcli"
           echo "$WIZ_DIR" >> "$GITHUB_PATH"
       - name: Verify Wiz CLI signature
