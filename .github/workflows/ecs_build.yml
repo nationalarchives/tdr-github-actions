@@ -87,16 +87,16 @@ jobs:
           snapshot: ${{ inputs.snapshot }}
       - name: Download Wiz CLI
         run: |
-          curl -Lo /tmp/wizcli https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64
-          curl -Lo /tmp/wizcli-sha256 https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64-sha256
-          curl -Lo /tmp/wizcli-sha256.sig https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64-sha256.sig
-          chmod +x /tmp/wizcli
+          curl -Lo "${RUNNER_TEMP}/wizcli" https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64
+          curl -Lo "${RUNNER_TEMP}/wizcli-sha256" https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64-sha256
+          curl -Lo "${RUNNER_TEMP}/wizcli-sha256.sig" https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64-sha256.sig
+          chmod +x "${RUNNER_TEMP}/wizcli"
       - name: Verify Wiz CLI signature
         run: |
-          curl -Lo /tmp/public_key.asc https://downloads.wiz.io/wizcli/public_key.asc
-          gpg --import /tmp/public_key.asc
-          gpg --verify /tmp/wizcli-sha256.sig /tmp/wizcli-sha256
-          echo "$(cat /tmp/wizcli-sha256)  /tmp/wizcli" | sha256sum --check
+          curl -Lo "${RUNNER_TEMP}/public_key.asc" https://downloads.wiz.io/wizcli/public_key.asc
+          gpg --import "${RUNNER_TEMP}/public_key.asc"
+          gpg --verify "${RUNNER_TEMP}/wizcli-sha256.sig" "${RUNNER_TEMP}/wizcli-sha256"
+          echo "$(cat "${RUNNER_TEMP}/wizcli-sha256")  ${RUNNER_TEMP}/wizcli" | sha256sum --check
       - name: Run build-command
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
@@ -107,7 +107,8 @@ jobs:
         env:
           IMAGE_NAME: ${{ inputs.image-name }}
           WIZ_PROJECT_ID: ${{ secrets.WIZ_PROJECT_ID }}
-        run: /tmp/wizcli scan dir . --name "${IMAGE_NAME}-${{ github.run_number }}" --project "$WIZ_PROJECT_ID"
+        run: |
+          "${RUNNER_TEMP}/wizcli" scan dir . --name "${IMAGE_NAME}-${{ github.run_number }}" --project "$WIZ_PROJECT_ID"
       - name: Build new image version
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
@@ -122,7 +123,8 @@ jobs:
           NEXT_VERSION: ${{ steps.next-tag.outputs.next-version }}
           MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
           WIZ_PROJECT_ID: ${{ secrets.WIZ_PROJECT_ID }}
-        run: /tmp/wizcli scan container-image "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${NEXT_VERSION}" --project "$WIZ_PROJECT_ID"
+        run: |
+          "${RUNNER_TEMP}/wizcli" scan container-image "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${NEXT_VERSION}" --project "$WIZ_PROJECT_ID"
       - name: Push new image version to ECR
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
@@ -139,4 +141,5 @@ jobs:
           IMAGE_NAME: ${{ inputs.image-name }}
           NEXT_VERSION: ${{ steps.next-tag.outputs.next-version }}
           MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
-        run: /tmp/wizcli tag "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${NEXT_VERSION}"
+        run: |
+          "${RUNNER_TEMP}/wizcli" tag "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${NEXT_VERSION}"
