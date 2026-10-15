@@ -85,25 +85,18 @@ jobs:
         with:
           repo-name: ${{ inputs.repo-name }}
           snapshot: ${{ inputs.snapshot }}
-      # Keep the Wiz CLI binary outside the checked-out repository so that
-      # `wizcli scan dir .` does not scan the scanner binary itself (it embeds
-      # Go modules with known CVEs which would otherwise fail the scan).
       - name: Download Wiz CLI
         run: |
-          WIZ_DIR="$RUNNER_TEMP/wiz"
-          mkdir -p "$WIZ_DIR"
-          curl -Lo "$WIZ_DIR/wizcli" https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64
-          curl -Lo "$WIZ_DIR/wizcli-sha256" https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64-sha256
-          curl -Lo "$WIZ_DIR/wizcli-sha256.sig" https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64-sha256.sig
-          chmod +x "$WIZ_DIR/wizcli"
-          echo "$WIZ_DIR" >> "$GITHUB_PATH"
+          curl -Lo "${RUNNER_TEMP}/wizcli" https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64
+          curl -Lo "${RUNNER_TEMP}/wizcli-sha256" https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64-sha256
+          curl -Lo "${RUNNER_TEMP}/wizcli-sha256.sig" https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64-sha256.sig
+          chmod +x "${RUNNER_TEMP}/wizcli"
       - name: Verify Wiz CLI signature
         run: |
-          WIZ_DIR="$RUNNER_TEMP/wiz"
-          curl -Lo "$WIZ_DIR/public_key.asc" https://downloads.wiz.io/wizcli/public_key.asc
-          gpg --import "$WIZ_DIR/public_key.asc"
-          gpg --verify "$WIZ_DIR/wizcli-sha256.sig" "$WIZ_DIR/wizcli-sha256"
-          echo "$(cat "$WIZ_DIR/wizcli-sha256") $WIZ_DIR/wizcli" | sha256sum --check
+          curl -Lo "${RUNNER_TEMP}/public_key.asc" https://downloads.wiz.io/wizcli/public_key.asc
+          gpg --import "${RUNNER_TEMP}/public_key.asc"
+          gpg --verify "${RUNNER_TEMP}/wizcli-sha256.sig" "${RUNNER_TEMP}/wizcli-sha256"
+          echo "$(cat "${RUNNER_TEMP}/wizcli-sha256")  ${RUNNER_TEMP}/wizcli" | sha256sum --check
       - name: Run build-command
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
@@ -114,7 +107,8 @@ jobs:
         env:
           IMAGE_NAME: ${{ inputs.image-name }}
           WIZ_PROJECT_ID: ${{ secrets.WIZ_PROJECT_ID }}
-        run: wizcli scan dir . --name "${IMAGE_NAME}-${{ github.run_number }}" --project "$WIZ_PROJECT_ID"
+        run: |
+          "${RUNNER_TEMP}/wizcli" scan dir . --name "${IMAGE_NAME}-${{ github.run_number }}" --project "$WIZ_PROJECT_ID"
       - name: Build new image version
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
@@ -130,7 +124,7 @@ jobs:
           MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
           WIZ_PROJECT_ID: ${{ secrets.WIZ_PROJECT_ID }}
         run: |
-          wizcli scan container-image "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${NEXT_VERSION}" --project "$WIZ_PROJECT_ID"
+          "${RUNNER_TEMP}/wizcli" scan container-image "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${NEXT_VERSION}" --project "$WIZ_PROJECT_ID"
       - name: Push new image version to ECR
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
@@ -148,4 +142,4 @@ jobs:
           NEXT_VERSION: ${{ steps.next-tag.outputs.next-version }}
           MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
         run: |
-          ./wizcli tag "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${NEXT_VERSION}"
+          "${RUNNER_TEMP}/wizcli" tag "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${NEXT_VERSION}"
