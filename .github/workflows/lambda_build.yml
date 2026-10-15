@@ -93,23 +93,30 @@ jobs:
         with:
           repo-name: ${{ inputs.repo-name }}
           snapshot: ${{ inputs.snapshot }}
+      # Keep the Wiz CLI binary outside the checked-out repository so that
+      # `wizcli scan dir .` does not scan the scanner binary itself (it embeds
+      # Go modules with known CVEs which would otherwise fail the scan).
       - name: Download Wiz CLI
         if: contains(inputs.build-command, 'docker')
         run: |
-          curl -Lo wizcli https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64
-          curl -Lo /tmp/wizcli-sha256 https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64-sha256
-          curl -Lo /tmp/wizcli-sha256.sig https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64-sha256.sig
-          chmod +x wizcli
+          WIZ_DIR="$RUNNER_TEMP/wiz"
+          mkdir -p "$WIZ_DIR"
+          curl -Lo "$WIZ_DIR/wizcli" https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64
+          curl -Lo "$WIZ_DIR/wizcli-sha256" https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64-sha256
+          curl -Lo "$WIZ_DIR/wizcli-sha256.sig" https://downloads.wiz.io/v1/wizcli/latest/wizcli-linux-amd64-sha256.sig
+          chmod +x "$WIZ_DIR/wizcli"
+          echo "$WIZ_DIR" >> "$GITHUB_PATH"
       - name: Verify Wiz CLI signature
         if: contains(inputs.build-command, 'docker')
         run: |
-          curl -Lo public_key.asc https://downloads.wiz.io/wizcli/public_key.asc
-          gpg --import public_key.asc
-          gpg --verify /tmp/wizcli-sha256.sig /tmp/wizcli-sha256
-          echo "$(cat /tmp/wizcli-sha256) wizcli" | sha256sum --check
+          WIZ_DIR="$RUNNER_TEMP/wiz"
+          curl -Lo "$WIZ_DIR/public_key.asc" https://downloads.wiz.io/wizcli/public_key.asc
+          gpg --import "$WIZ_DIR/public_key.asc"
+          gpg --verify "$WIZ_DIR/wizcli-sha256.sig" "$WIZ_DIR/wizcli-sha256"
+          echo "$(cat "$WIZ_DIR/wizcli-sha256") $WIZ_DIR/wizcli" | sha256sum --check
       - name: Scan working directory with Wiz
         if: contains(inputs.build-command, 'docker')
-        run: ./wizcli scan dir . --name "${REPO_NAME}-${GITHUB_RUN_NUMBER}" --project "${WIZ_PROJECT_ID}"
+        run: wizcli scan dir . --name "${REPO_NAME}-${GITHUB_RUN_NUMBER}" --project "${WIZ_PROJECT_ID}"
         env:
           REPO_NAME: ${{ inputs.repo-name }}
           GITHUB_RUN_NUMBER: ${{ github.run_number }}
@@ -123,7 +130,7 @@ jobs:
           bash -lc "$BUILD_COMMAND"
       - name: Wiz image tag
         if: contains(inputs.build-command, 'docker')
-        run: ./wizcli scan container-image function --project "${WIZ_PROJECT_ID}"
+        run: wizcli scan container-image function --project "${WIZ_PROJECT_ID}"
         env:
           WIZ_PROJECT_ID: ${{ secrets.WIZ_PROJECT_ID }}
       - name: Copy artifact to S3
