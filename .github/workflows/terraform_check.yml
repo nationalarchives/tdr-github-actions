@@ -31,6 +31,7 @@ jobs:
         with:
           submodules: recursive
           token: ${{ secrets.WORKFLOW_PAT }}
+          persist-credentials: false
       - name: Configure AWS credentials for Lambda
         uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:

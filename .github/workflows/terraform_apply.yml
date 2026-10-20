@@ -80,6 +80,7 @@ jobs:
         with:
           submodules: recursive
           token: ${{ secrets.WORKFLOW_PAT }}
+          persist-credentials: false
       - name: Configure AWS credentials for Lambda
         uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
@@ -153,6 +154,7 @@ jobs:
         with:
           submodules: recursive
           token: ${{ secrets.WORKFLOW_PAT }}
+          persist-credentials: false
       - name: Configure AWS credentials for Lambda
         uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
@@ -200,11 +202,14 @@ jobs:
         env:
           NEXT_VERSION: ${{ steps.next-tag.outputs.next-version }}
           DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
+          GH_TOKEN: ${{ secrets.WORKFLOW_PAT }}
         run: |
+          # Credentials are not persisted by checkout, so authenticate only for the push
+          remote="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git tag "$NEXT_VERSION"
-          git push origin "$NEXT_VERSION"
+          git push "$remote" "$NEXT_VERSION"
           git branch -f "release-${DEPLOY_ENVIRONMENT}" HEAD
-          git push -f origin "release-${DEPLOY_ENVIRONMENT}"
+          git push -f "$remote" "release-${DEPLOY_ENVIRONMENT}"
       - name: Send failure message
         if: failure()
         uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@68960904fc1b628f92756d3f760e7ab64cfe95f2 # v0.0.44
