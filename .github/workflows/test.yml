@@ -4,18 +4,13 @@ on:
   push:
     branches-ignore:
       - main
-
-permissions: {}
-
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
       - run: |
-          echo "test" > tmp
+          echo "111111111111" > tmp
           git add tmp
       - uses: nationalarchives/tdr-github-actions/.github/actions/run-git-secrets@68960904fc1b628f92756d3f760e7ab64cfe95f2 # v0.0.44
         id: run-git-secrets
