@@ -120,7 +120,7 @@ jobs:
 
           TARGET_ARGS=""
           if [ "$TARGET_KMS_KEYS" = "true" ]; then
-            TARGET_ARGS="-target=module.s3_internal_kms_key -target=module.s3_external_kms_key"
+            TARGET_ARGS="-target=module.s3_internal_kms_key -target=module.s3_external_kms_key -target=module.s3_upload_kms_key"
           fi
 
           terraform plan -no-color $TARGET_ARGS -out=out > /dev/null
