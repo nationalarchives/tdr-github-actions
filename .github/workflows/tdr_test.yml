@@ -27,8 +27,8 @@ jobs:
         with:
           persist-credentials: false
       - uses: coursier/cache-action@ee0650f98295f27a505e4bfd284c9bfaa913a465 # v9.0.1
-      - uses: sbt/setup-sbt@ae0b60a19a947db9353f7f4a2a9672681da430aa # v1.5.14
-      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+      - uses: sbt/setup-sbt@67d461eba2c4753196c230e02da850757ba4775e # v1.5.14
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           java-version: ${{ inputs.java-version }}
           distribution: 'temurin'
