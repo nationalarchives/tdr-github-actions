@@ -35,6 +35,8 @@ on:
         required: true
       WIZ_PROJECT_ID:
         required: true
+      SLACK_WEBHOOK:
+        required: true
     outputs:
       next-version:
         description: "The next version of the project"
@@ -64,7 +66,7 @@ jobs:
         with:
           persist-credentials: false
       - uses: coursier/cache-action@ee0650f98295f27a505e4bfd284c9bfaa913a465 # v9.0.1
-      - uses: sbt/setup-sbt@ae0b60a19a947db9353f7f4a2a9672681da430aa # v1.5.14
+      - uses: sbt/setup-sbt@67d461eba2c4753196c230e02da850757ba4775e # v1.5.14
       - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           java-version: ${{ inputs.java-version }}
@@ -118,13 +120,25 @@ jobs:
         run: |
           docker buildx build --output=type=docker --provenance=false --sbom=false -t "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${NEXT_VERSION}" .
       - name: Wiz container image scan
+        id: wiz-image-scan
         env:
           IMAGE_NAME: ${{ inputs.image-name }}
           NEXT_VERSION: ${{ steps.next-tag.outputs.next-version }}
           MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
           WIZ_PROJECT_ID: ${{ secrets.WIZ_PROJECT_ID }}
         run: |
+          set +e
           "${RUNNER_TEMP}/wizcli" scan container-image "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${NEXT_VERSION}" --project "$WIZ_PROJECT_ID"
+          exit_code=$?
+          echo "exit-code=$exit_code" >> "$GITHUB_OUTPUT"
+          exit $exit_code
+      - name: Send Wiz vulnerability failure message
+        # Wiz CLI exits with code 4 when the scan finds policy violations (e.g. vulnerabilities)
+        if: ${{ failure() && steps.wiz-image-scan.outputs.exit-code == '4' }}
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@68960904fc1b628f92756d3f760e7ab64cfe95f2 # v0.0.44
+        with:
+          message: ":rotating_light: *${{ inputs.repo-name }}* :whale: Wiz container image scan failed due to policy violations (vulnerabilities found). The image was *not* pushed to ECR.\n*Version:* ${{ steps.next-tag.outputs.next-version }}\n*Image:* ${{ inputs.image-name }}:${{ steps.next-tag.outputs.next-version }}\n*Triggered by:* ${{ github.actor }}\n*Workflow run:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          slack-url: ${{ secrets.SLACK_WEBHOOK }}
       - name: Push new image version to ECR
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
