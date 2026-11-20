@@ -65,6 +65,9 @@ Version of java to use to build if applicable. Defaults to version 11.
 #### `WORKFLOW_PAT`
 **Required** The GitHub personal access token. Used to authenticate when pushing tags.
 
+#### `SLACK_WEBHOOK`
+The Slack webhook URL. Used to send a Slack message with the workflow run URL when the Wiz container image scan fails due to policy violations (e.g. vulnerabilities).
+
 #### Example usage
 ```yaml
 jobs:
