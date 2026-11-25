@@ -27,6 +27,9 @@ on:
         required: false
         type: string
         default: '11'
+      account-regional-code-bucket:
+        type: boolean
+        default: false
       snapshot:
         description: >
           If true, tag this build as a dev snapshot (v<current-version>-SNAPSHOT-dev-<actor>)
@@ -135,8 +138,9 @@ jobs:
           ARTIFACT_FILE_TYPE: ${{ inputs.artifact-file-type }}
           LAMBDA_NAME: ${{ inputs.lambda-name }}
           NEXT_VERSION: ${{ steps.next-tag.outputs.next-version }}
+          CODE_BUCKET_NAME: ${{ inputs.account-regional-code-bucket && format('tdr-backend-code-mgmt-{0}-eu-west-2-an', secrets.MANAGEMENT_ACCOUNT) || 'tdr-backend-code-mgmt' }}
         run: |
-          aws s3 cp "${ARTIFACT_PATH}/${ARTIFACT_NAME}.${ARTIFACT_FILE_TYPE}" "s3://tdr-backend-code-mgmt/${LAMBDA_NAME}/${NEXT_VERSION}/${ARTIFACT_NAME}.${ARTIFACT_FILE_TYPE}"
+          aws s3 cp "${ARTIFACT_PATH}/${ARTIFACT_NAME}.${ARTIFACT_FILE_TYPE}" "s3://${CODE_BUCKET_NAME}/${LAMBDA_NAME}/${NEXT_VERSION}/${ARTIFACT_NAME}.${ARTIFACT_FILE_TYPE}"
       - name: Tag release
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}

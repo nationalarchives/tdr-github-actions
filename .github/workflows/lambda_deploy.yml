@@ -21,6 +21,9 @@ on:
       image-name:
         type: string
         required: false
+      account-regional-code-bucket:
+        type: boolean
+        default: false
     secrets:
       ACCOUNT_NUMBER:
         required: true
@@ -42,7 +45,7 @@ jobs:
       # Snapshot builds are for ad hoc developer testing in dev only; block
       # them from ever being deployed to a shared environment.
       - name: Guard against deploying a snapshot outside dev
-        if: ${{ contains(inputs.to-deploy, '-SNAPSHOT-') && inputs.environment != 'dev' }}
+        if: ${{ contains(inputs.to-deploy, '-SNAPSHOT-') && inputs.environment != 'dev' && inputs.environment != 'drdev' }}
         env:
           TO_DEPLOY: ${{ inputs.to-deploy }}
           ENVIRONMENT: ${{ inputs.environment }}
@@ -97,7 +100,7 @@ jobs:
           if [ -n "${IMAGE_NAME}" ]; then
             aws lambda update-function-code --function-name "${PROJECT}-${LAMBDA_NAME}-${DEPLOY_ENVIRONMENT}" --image-uri "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${DEPLOY_ENVIRONMENT}" --output text --query 'FunctionName'
           else
-            aws lambda update-function-code --function-name "${PROJECT}-${LAMBDA_NAME}-${DEPLOY_ENVIRONMENT}" --s3-bucket tdr-backend-code-mgmt --s3-key "${LAMBDA_NAME}/${TO_DEPLOY}/${DEPLOYMENT_PACKAGE}" --output text --query 'FunctionName'
+            aws lambda update-function-code --function-name "${PROJECT}-${LAMBDA_NAME}-${DEPLOY_ENVIRONMENT}" --s3-bucket "${CODE_BUCKET_NAME}" --s3-key "${LAMBDA_NAME}/${TO_DEPLOY}/${DEPLOYMENT_PACKAGE}" --output text --query 'FunctionName'
           fi
           aws lambda wait function-updated --function-name "${PROJECT}-${LAMBDA_NAME}-${DEPLOY_ENVIRONMENT}"
         env:
@@ -108,6 +111,7 @@ jobs:
           MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
           TO_DEPLOY: ${{ inputs.to-deploy }}
           DEPLOYMENT_PACKAGE: ${{ inputs.deployment-package }}
+          CODE_BUCKET_NAME: ${{ inputs.account-regional-code-bucket && format('tdr-backend-code-mgmt-{0}-eu-west-2-an', secrets.MANAGEMENT_ACCOUNT) || 'tdr-backend-code-mgmt' }}
       - name: Get current and prior release commits
         id: release-commits
         run: |
