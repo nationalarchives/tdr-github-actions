@@ -2,9 +2,6 @@ name: TDR Build Lambda
 on:
   workflow_call:
     inputs:
-      environment:
-        required: true
-        type: string
       repo-name:
         required: true
         type: string
@@ -61,7 +58,6 @@ permissions: {}
 jobs:
   pre-deploy:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
     permissions:
       id-token: write
       contents: write
