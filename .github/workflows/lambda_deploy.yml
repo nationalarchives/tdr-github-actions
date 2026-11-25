@@ -94,24 +94,23 @@ jobs:
           PROJECT: ${{ inputs.project }}
           LAMBDA_NAME: ${{ inputs.lambda-name }}
           DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
-#      - name: Deploy to lambda
-#
-#        run: |
-#          if [ -n "${IMAGE_NAME}" ]; then
-#            aws lambda update-function-code --function-name "${PROJECT}-${LAMBDA_NAME}-${DEPLOY_ENVIRONMENT}" --image-uri "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${DEPLOY_ENVIRONMENT}" --output text --query 'FunctionName'
-#          else
-#            aws lambda update-function-code --function-name "${PROJECT}-${LAMBDA_NAME}-${DEPLOY_ENVIRONMENT}" --s3-bucket "${CODE_BUCKET_NAME}" --s3-key "${LAMBDA_NAME}/${TO_DEPLOY}/${DEPLOYMENT_PACKAGE}" --output text --query 'FunctionName'
-#          fi
-#          aws lambda wait function-updated --function-name "${PROJECT}-${LAMBDA_NAME}-${DEPLOY_ENVIRONMENT}"
-#        env:
-#          IMAGE_NAME: ${{ inputs.image-name }}
-#          PROJECT: ${{ inputs.project }}
-#          LAMBDA_NAME: ${{ inputs.lambda-name }}
-#          DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
-#          MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
-#          TO_DEPLOY: ${{ inputs.to-deploy }}
-#          DEPLOYMENT_PACKAGE: ${{ inputs.deployment-package }}
-#          CODE_BUCKET_NAME: ${{ inputs.account-regional-code-bucket && format('tdr-backend-code-mgmt-{0}-eu-west-2-an', secrets.MANAGEMENT_ACCOUNT) || 'tdr-backend-code-mgmt' }}
+      - name: Deploy to lambda
+        run: |
+          if [ -n "${IMAGE_NAME}" ]; then
+            aws lambda update-function-code --function-name "${PROJECT}-${LAMBDA_NAME}-${DEPLOY_ENVIRONMENT}" --image-uri "${MANAGEMENT_ACCOUNT}.dkr.ecr.eu-west-2.amazonaws.com/${IMAGE_NAME}:${DEPLOY_ENVIRONMENT}" --output text --query 'FunctionName'
+          else
+            aws lambda update-function-code --function-name "${PROJECT}-${LAMBDA_NAME}-${DEPLOY_ENVIRONMENT}" --s3-bucket "${CODE_BUCKET_NAME}" --s3-key "${LAMBDA_NAME}/${TO_DEPLOY}/${DEPLOYMENT_PACKAGE}" --output text --query 'FunctionName'
+          fi
+          aws lambda wait function-updated --function-name "${PROJECT}-${LAMBDA_NAME}-${DEPLOY_ENVIRONMENT}"
+        env:
+          IMAGE_NAME: ${{ inputs.image-name }}
+          PROJECT: ${{ inputs.project }}
+          LAMBDA_NAME: ${{ inputs.lambda-name }}
+          DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
+          MANAGEMENT_ACCOUNT: ${{ secrets.MANAGEMENT_ACCOUNT }}
+          TO_DEPLOY: ${{ inputs.to-deploy }}
+          DEPLOYMENT_PACKAGE: ${{ inputs.deployment-package }}
+          CODE_BUCKET_NAME: ${{ inputs.account-regional-code-bucket && format('tdr-backend-code-mgmt-{0}-eu-west-2-an', secrets.MANAGEMENT_ACCOUNT) || 'tdr-backend-code-mgmt' }}
 #      - name: Get current and prior release commits
 #        id: release-commits
 #        run: |
