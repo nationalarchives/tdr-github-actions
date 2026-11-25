@@ -42,6 +42,8 @@ on:
         type: boolean
         default: false
     secrets:
+      MANAGEMENT_ACCOUNT:
+        required: true
       WORKFLOW_PAT:
         required: true
       WIZ_CLIENT_ID:
