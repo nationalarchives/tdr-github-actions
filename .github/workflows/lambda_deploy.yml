@@ -111,40 +111,40 @@ jobs:
           TO_DEPLOY: ${{ inputs.to-deploy }}
           DEPLOYMENT_PACKAGE: ${{ inputs.deployment-package }}
           CODE_BUCKET_NAME: ${{ inputs.account-regional-code-bucket && format('tdr-backend-code-mgmt-{0}-eu-west-2-an', secrets.MANAGEMENT_ACCOUNT) || 'tdr-backend-code-mgmt' }}
-#      - name: Get current and prior release commits
-#        id: release-commits
-#        run: |
-#          CURRENT_COMMIT=$(git rev-parse HEAD)
-#          PRIOR_RELEASE_COMMIT=$(git ls-remote origin "release-${DEPLOY_ENVIRONMENT}" | cut -f1 2>/dev/null || echo "")
-#          echo "current-commit=$CURRENT_COMMIT" >> $GITHUB_OUTPUT
-#          echo "prior-release-commit=$PRIOR_RELEASE_COMMIT" >> $GITHUB_OUTPUT
-#        env:
-#          DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
-#      - name: Send success message
-#        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@68960904fc1b628f92756d3f760e7ab64cfe95f2 # v0.0.44
-#        with:
-#          message: ":white_check_mark: Lambda ${{ inputs.lambda-name }} updated to version ${{ inputs.to-deploy }} in ${{ inputs.environment }} (<https://github.com/${{ github.repository }}/compare/${{ steps.release-commits.outputs.prior-release-commit }}...${{ steps.release-commits.outputs.current-commit }}|See changes>)"
-#          slack-url: ${{ secrets.SLACK_WEBHOOK }}
-#      - name: Update release branch
-#        run: |
-#          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-#          git branch -f "release-${DEPLOY_ENVIRONMENT}" HEAD
-#          git push -f origin "release-${DEPLOY_ENVIRONMENT}"
-#        env:
-#          GITHUB_TOKEN: ${{ github.token }}
-#          DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
-#      - name: Send failure message
-#        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@68960904fc1b628f92756d3f760e7ab64cfe95f2 # v0.0.44
-#        if: failure()
-#        with:
-#          message: ":warning: Build failed for ${{ inputs.lambda-name }}"
-#          slack-url: ${{ secrets.SLACK_WEBHOOK }}
-#      - name: Run E2E tests
-#        if: inputs.environment == 'intg' || inputs.environment == 'staging'
-#        uses: octokit/request-action@b91aabaa861c777dcdb14e2387e30eddf04619ae # v3.0.0
-#        with:
-#          route: POST /repos/nationalarchives/tdr-e2e-tests/actions/workflows/ci.yml/dispatches
-#          ref: master
-#          inputs: "{\"environment\": \"${{ inputs.environment }}\", \"repo-details\": \"${{ inputs.lambda-name }}@${{ inputs.to-deploy }}\"}"
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
+      - name: Get current and prior release commits
+        id: release-commits
+        run: |
+          CURRENT_COMMIT=$(git rev-parse HEAD)
+          PRIOR_RELEASE_COMMIT=$(git ls-remote origin "release-${DEPLOY_ENVIRONMENT}" | cut -f1 2>/dev/null || echo "")
+          echo "current-commit=$CURRENT_COMMIT" >> $GITHUB_OUTPUT
+          echo "prior-release-commit=$PRIOR_RELEASE_COMMIT" >> $GITHUB_OUTPUT
+        env:
+          DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
+      - name: Send success message
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@68960904fc1b628f92756d3f760e7ab64cfe95f2 # v0.0.44
+        with:
+          message: ":white_check_mark: Lambda ${{ inputs.lambda-name }} updated to version ${{ inputs.to-deploy }} in ${{ inputs.environment }} (<https://github.com/${{ github.repository }}/compare/${{ steps.release-commits.outputs.prior-release-commit }}...${{ steps.release-commits.outputs.current-commit }}|See changes>)"
+          slack-url: ${{ secrets.SLACK_WEBHOOK }}
+      - name: Update release branch
+        run: |
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git branch -f "release-${DEPLOY_ENVIRONMENT}" HEAD
+          git push -f origin "release-${DEPLOY_ENVIRONMENT}"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          DEPLOY_ENVIRONMENT: ${{ inputs.environment }}
+      - name: Send failure message
+        uses: nationalarchives/tdr-github-actions/.github/actions/slack-send@68960904fc1b628f92756d3f760e7ab64cfe95f2 # v0.0.44
+        if: failure()
+        with:
+          message: ":warning: Build failed for ${{ inputs.lambda-name }}"
+          slack-url: ${{ secrets.SLACK_WEBHOOK }}
+      - name: Run E2E tests
+        if: inputs.environment == 'intg' || inputs.environment == 'staging'
+        uses: octokit/request-action@b91aabaa861c777dcdb14e2387e30eddf04619ae # v3.0.0
+        with:
+          route: POST /repos/nationalarchives/tdr-e2e-tests/actions/workflows/ci.yml/dispatches
+          ref: master
+          inputs: "{\"environment\": \"${{ inputs.environment }}\", \"repo-details\": \"${{ inputs.lambda-name }}@${{ inputs.to-deploy }}\"}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
