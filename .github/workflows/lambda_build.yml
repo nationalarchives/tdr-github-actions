@@ -146,7 +146,6 @@ jobs:
         run: |
           aws s3 cp "${ARTIFACT_PATH}/${ARTIFACT_NAME}.${ARTIFACT_FILE_TYPE}" "s3://${CODE_BUCKET_NAME}/${LAMBDA_NAME}/${NEXT_VERSION}/${ARTIFACT_NAME}.${ARTIFACT_FILE_TYPE}"
       - name: Tag release
-        if: ${{ !inputs.snapshot }}
         env:
           GITHUB_TOKEN: ${{ secrets.WORKFLOW_PAT }}
           NEXT_VERSION: ${{ steps.next-tag.outputs.next-version }}
