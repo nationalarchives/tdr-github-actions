@@ -38,7 +38,7 @@ jobs:
       # Snapshot builds are for ad hoc developer testing in dev only; block
       # them from ever being deployed to a shared environment.
       - name: Guard against deploying a snapshot outside dev
-        if: ${{ contains(inputs.to-deploy, '-SNAPSHOT-') && inputs.environment != 'dev' }}
+        if: ${{ contains(inputs.to-deploy, '-SNAPSHOT-') && inputs.environment != 'dev' && inputs.environment != 'drdev' }}
         env:
           TO_DEPLOY: ${{ inputs.to-deploy }}
           ENVIRONMENT: ${{ inputs.environment }}
