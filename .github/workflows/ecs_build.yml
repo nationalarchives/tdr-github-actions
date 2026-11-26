@@ -2,6 +2,9 @@ name: TDR ECS Build Images
 on:
   workflow_call:
     inputs:
+      environment:
+        required: true
+        type: string
       repo-name:
         required: true
         type: string
@@ -47,6 +50,7 @@ permissions:
   contents: write
 jobs:
   pre-deploy:
+    environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     env:
       WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
@@ -83,7 +87,7 @@ jobs:
           registry: ${{ secrets.MANAGEMENT_ACCOUNT }}.dkr.ecr.eu-west-2.amazonaws.com
       - run: pip install requests
       - id: next-tag
-        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@68960904fc1b628f92756d3f760e7ab64cfe95f2 # v0.0.44
+        uses: nationalarchives/tdr-github-actions/.github/actions/get-next-version@839eff06049ad64985d1d56610f8359aca22b0ac # v0.0.44
         with:
           repo-name: ${{ inputs.repo-name }}
           snapshot: ${{ inputs.snapshot }}
